@@ -13,6 +13,7 @@ var webconfig = {
 
 };
 
+
 sql.connect(webconfig, function (err) {
 
     if (err) console.log(err);
@@ -30,6 +31,6 @@ sql.connect(webconfig, function (err) {
 
     });
 });
-
+//tagyk
 
 
