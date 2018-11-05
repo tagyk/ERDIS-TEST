@@ -3,7 +3,7 @@ var webconfig = {
     server: "erktrdepos03",
     user: "ax",
     password: "465666",
-    database: 'AXATAWM_CL',
+    database: 'AXATAWM_LF',
     connectionString: "Driver={SQL Server Native Client 11.0};Server=#{server}\\sql;Database=#{database};Uid=#{user};Pwd=#{password};",
     options: {
         trustedConnection: false,
