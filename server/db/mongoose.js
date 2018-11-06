@@ -1,3 +1,4 @@
+//en üste yazdım. Taygun
 var mongoose = require('mongoose');
 
 mongoose.Promise = global.Promise;
