@@ -1,5 +1,36 @@
 var sql = require("mssql");
 
+class shippingReceiptModel {
+
+    constructor(_documentNum, _documentDate) {
+        this.documentNum = _documentNum;
+        this.documentDate = _documentDate;
+        this.boxHeaders = [boxHeaderModel];
+
+        function addboxHeaders(_boxHeaderModel) {
+            boxDetails.push(boxHeaderModel);
+        }
+    }
+
+
+}
+class boxHeaderModel {
+
+    constructor(boxHeaderNo, locationToAccount) {
+        this.boxHeaderNo = boxHeaderNo;
+        this.locationToAccount = locationToAccount;
+        this.boxDetails = [];
+
+        function addDetails(_barcode, _qty, _boxnum) {
+            boxDetails.push({
+                barcode: _barcode,
+                qty: _qty,
+                boxNum: _boxnum
+            });
+        }
+    }
+}
+
 
 
 
@@ -17,6 +48,13 @@ var webconfig = {
 
 
 };
+var shippingReceipts = [shippingReceiptModel];
+var shippingReceipt;
+var ENT009;
+var ENT0075, ENT0076;
+var boxheader;
+
+
 
 sql.connect(webconfig, function (err) {
 
@@ -27,30 +65,33 @@ sql.connect(webconfig, function (err) {
     request.query("select * from ENT009 where S09INUM in ('30518908',30680025)", function (err, result) {
         if (err) console.log("ENT009  " + err);
         for (var i = 0, len = result.rowsAffected; i < len; i++) {
-            var ENT009 = result.recordset[i];
-            request.query(`select S75KOLINO,S75SFIRM from  ENT0075 where S75IRNO = ${ENT009.S09INUM} group by S75KOLINO,S75SFIRM`, function (err, result) {
-                if (err)("ENT0075  " + err);
-                var ENT0075 = result.recordset[i];
-                    
+            ENT009 = result.recordset[i];
+            shippingReceipt = new shippingReceiptModel(ENT009.S09INUM, ENT009.S09IRTR);
+            request.query(`select S75KOLINO,S75SFIRM from  ENT0075 where S75IRNO = ${ENT009.S09INUM} group by S75KOLINO,S75SFIRM`, function (err, results) {
+                if (err) console.log("ENT0075  " + err);
+                for (var i = 0, len = results.rowsAffected; i < len; i++) {
+                    ENT0075 = results.recordset[i];
+                    boxheader = new boxHeaderModel(ENT0075.S75KOLINO, ENT0075.S75SFIRM);
+                    request.query(` select *  from ENT0076  where S76KOLINO = ${ENT0075.S75KOLINO}`, function (err, results2) {
+                        if (err) console.log("ENT0076  " + err);
+                        for (var i = 0, len = results2.rowsAffected; i < len; i++) {
+                            ENT0076 = results2.recordset[i];
+                            boxHeaderModel.addDetails(ENT0076.S76SKU,ENT0076.S76MIKTAR,ENT0076.S76KOLINO);
+                        }
+                        // for (var i = 0, len = boxheader.boxDetails.length; i < len; i++) {
+                        //     console.log(boxheader.boxDetails[i]);
+                        // }
+                        console.log(shippingReceipt.S09INUM);
+                        shippingReceipt.addboxHeaders(boxHeaderModel);
+                    });
+                }
             });
-            
-            
-            
-            
-            
-            
-            var _shippingReceipt = {
-                documentNum : ENT009.S09INUM ,
-                documentDate : ENT009.S09IRTR ,
-            }
-            console.log(_shippingReceipt);
+            shippingReceipts.push(shippingReceipt);
+            //console.log(shippingReceipts[0].boxHeaders[0]);
         }
-            
         
-        // console.log(ENT009.recordsets); 
-        // console.log(_shippingReceipt);
-        ;      
     });
+    console.log(shippingReceipts[0]);
 });
 //mlh
 
