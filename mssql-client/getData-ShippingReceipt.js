@@ -2,37 +2,34 @@ var sql = require("mssql");
 
 class shippingReceiptModel {
 
+
     constructor(_documentNum, _documentDate) {
         this.documentNum = _documentNum;
         this.documentDate = _documentDate;
-        this.boxHeaders = [boxHeaderModel];
-
-        function addboxHeaders(_boxHeaderModel) {
-            boxDetails.push(boxHeaderModel);
-        }
-    }
-
-
+        this.boxHeaders = new Array();
+    };
+    addboxHeaders(_boxHeaderModel) {
+        // this.boxHeaders = [];
+        this.boxHeaders.push(_boxHeaderModel);
+    };
 }
 class boxHeaderModel {
+
 
     constructor(boxHeaderNo, locationToAccount) {
         this.boxHeaderNo = boxHeaderNo;
         this.locationToAccount = locationToAccount;
-        this.boxDetails = [];
-
-        function addDetails(_barcode, _qty, _boxnum) {
-            boxDetails.push({
-                barcode: _barcode,
-                qty: _qty,
-                boxNum: _boxnum
-            });
-        }
+        this.boxDetails = new Array();
     }
+    addDetails(_barcode, _qty, _boxnum) {
+        // this.boxDetails = [];
+        this.boxDetails.push({
+            barcode: _barcode,
+            qty: _qty,
+            boxNum: _boxnum
+        });
+    };
 }
-
-
-
 
 
 var webconfig = {
@@ -44,15 +41,84 @@ var webconfig = {
     options: {
         trustedConnection: false,
         encrypt: false
+    },
+    pool: {
+        max: 10,
+        min: 0,
+        idleTimeoutMillis: 30000
     }
-
-
 };
-var shippingReceipts = [shippingReceiptModel];
-var shippingReceipt;
-var ENT009;
-var ENT0075, ENT0076;
-var boxheader;
+
+
+let shippingReceipt;
+let ENT009;
+let ENT0075, ENT0076;
+let boxheader;
+
+var boxheaderObject = (_boxheader) => {
+    return new Promise((resolve, reject) => {
+        var request = new sql.Request();
+        request.query(`select *  from ENT0076  where S76KOLINO = ${_boxheader.boxHeaderNo}`, function (err, result) {
+            if (err) console.log("ENT0076  " + err);
+            for (var k = 0, len = result.rowsAffected; k < len; k++) {
+                ENT0076 = result.recordset[k];
+                _boxheader.addDetails(ENT0076.S76SKU, ENT0076.S76MIKTAR, ENT0076.S76KOLINO);
+            }
+            resolve(_boxheader);
+        });
+    })
+};
+
+var Ent75 = (_shippingReceipt) => {
+    return new Promise((resolve, reject) => {
+        var request = new sql.Request();
+        request.query(`select S75KOLINO,S75SFIRM from ENT0075 where S75IRNO = ${_shippingReceipt.documentNum} group by S75KOLINO,S75SFIRM`, function (err, results) {
+            if (err) console.log("ENT0075  " + err);
+            for (var i = 0, len = results.rowsAffected; i < len; i++) {
+                ENT0075 = results.recordset[i];
+                // console.log(ENT0075.S75KOLINO);
+                boxheader = new boxHeaderModel(ENT0075.S75KOLINO, ENT0075.S75SFIRM);
+                boxheaderObject(boxheader).then(function (_boxheader) {
+                    //console.log(_boxheader.boxDetails);
+                    _shippingReceipt.addboxHeaders(_boxheader);
+                    //console.log(shippingReceipt);
+                });;
+            }
+            resolve(_shippingReceipt);
+        });
+    })
+};
+
+
+var Ent09 = () => {
+    let shippingReceipts = [];
+    return new Promise((resolve, reject) => {
+        var request = new sql.Request();
+        // query to the database and get the records
+        request.query("select * from ENT009 where S09INUM in ('30518908','30680025','30521329')", function (err, result) {
+            if (err) console.log("ENT009  " + err);
+            for (var i = 0, len = result.rowsAffected; i < len; i++) {
+                ENT009 = result.recordset[i];
+                shippingReceipt = new shippingReceiptModel(ENT009.S09INUM, ENT009.S09IRTR);
+                Ent75(shippingReceipt).then(function (_shippingReceipt) {
+                    shippingReceipts.push(_shippingReceipt);
+                    console.log(_shippingReceipt.boxHeaders[0].barcode);
+                });
+            }
+            //console.log(_shippingReceipt);
+            resolve(shippingReceipts);
+        });
+        // console.log(shippingReceipts[0]);
+    })
+};
+
+
+
+
+
+
+
+
 
 
 
@@ -60,38 +126,10 @@ sql.connect(webconfig, function (err) {
 
     if (err) console.log(err);
     // create Request object
-    var request = new sql.Request();
-    // query to the database and get the records
-    request.query("select * from ENT009 where S09INUM in ('30518908',30680025)", function (err, result) {
-        if (err) console.log("ENT009  " + err);
-        for (var i = 0, len = result.rowsAffected; i < len; i++) {
-            ENT009 = result.recordset[i];
-            shippingReceipt = new shippingReceiptModel(ENT009.S09INUM, ENT009.S09IRTR);
-            request.query(`select S75KOLINO,S75SFIRM from  ENT0075 where S75IRNO = ${ENT009.S09INUM} group by S75KOLINO,S75SFIRM`, function (err, results) {
-                if (err) console.log("ENT0075  " + err);
-                for (var i = 0, len = results.rowsAffected; i < len; i++) {
-                    ENT0075 = results.recordset[i];
-                    boxheader = new boxHeaderModel(ENT0075.S75KOLINO, ENT0075.S75SFIRM);
-                    request.query(` select *  from ENT0076  where S76KOLINO = ${ENT0075.S75KOLINO}`, function (err, results2) {
-                        if (err) console.log("ENT0076  " + err);
-                        for (var i = 0, len = results2.rowsAffected; i < len; i++) {
-                            ENT0076 = results2.recordset[i];
-                            boxHeaderModel.addDetails(ENT0076.S76SKU,ENT0076.S76MIKTAR,ENT0076.S76KOLINO);
-                        }
-                        // for (var i = 0, len = boxheader.boxDetails.length; i < len; i++) {
-                        //     console.log(boxheader.boxDetails[i]);
-                        // }
-                        console.log(shippingReceipt.S09INUM);
-                        shippingReceipt.addboxHeaders(boxHeaderModel);
-                    });
-                }
-            });
-            shippingReceipts.push(shippingReceipt);
-            //console.log(shippingReceipts[0].boxHeaders[0]);
-        }
-        
+    Ent09().then(function (_shippingReceipts) {
+        _shippingReceipts.forEach(element => {
+            console.log(element);
+        });
     });
-    console.log(shippingReceipts[0]);
 });
 //mlh
-
