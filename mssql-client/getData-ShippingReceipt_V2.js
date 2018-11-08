@@ -82,7 +82,7 @@ sql.connect(webconfig, function (err) {
                 ENT0075 = results.recordset[i];
                 boxheader = new boxHeaderModel(ENT0075.S75KOLINO, ENT0075.S75SFIRM);
             }
-            shippingReceipts.
+            // shippingReceipts.
         });
     }
 
