@@ -60,21 +60,24 @@ var boxheaderObject = (doc) => {
         request.query(`select *  from ENT0076  where S76KOLINO = ${boxHeaderNo}`, function (err, result) {
             if (err) console.log("ENT0076  " + err);
             for (var k = 0, len = result.rowsAffected; k < len; k++) {
-                var ENT0076 = result.recordset[k];
-                ShippingReceipt.findById(doc._id, function (err, _ShippingReceipt) {
-                    var subdoc = _ShippingReceipt.boxHeader.id(doc.boxHeader[0]._id);
-                    subdoc.boxDetails.push({ barcode: ENT0076.S76SKU, qty: ENT0076.S76MIKTAR });
-                    _ShippingReceipt.save()
-                        .then((doc) => {
-                            // console.log(doc);
-                            //fs.appendFile('tmp.json',JSON.stringify(doc,null,2));
-                            resolve(doc);
-                        });
-                });
+                var someFunction = function (i, result) {
+                    var ENT0076 = result.recordset[k];
+                    ShippingReceipt.findById(doc._id, function (err, _ShippingReceipt) {
+                        var subdoc = _ShippingReceipt.boxHeader.id(doc.boxHeader[0]._id);
+                        subdoc.boxDetails.push({ barcode: ENT0076.S76SKU, qty: ENT0076.S76MIKTAR });
+                        _ShippingReceipt.save()
+                            .then((doc) => {
+                                // console.log(doc);
+                                //fs.appendFile('tmp.json',JSON.stringify(doc,null,2));
+                                resolve(doc);
+                            });
+                    });
+                };
+                someFunction(k, result);
             }
-            resolve(true);
         });
-    })
+        resolve(true);
+    });
 };
 
 var Ent75 = (_documentNum) => {
@@ -85,7 +88,7 @@ var Ent75 = (_documentNum) => {
             if (err) console.log("ENT0075  " + err);
 
             for (var i = 0, len = results.rowsAffected; i < len; i++) {
-                var someFunction = function (i,results) {
+                var someFunction = function (i, results) {
                     var ENT0075 = results.recordset[i];
                     var promise = new Promise((resolve, reject) => {
                         ShippingReceipt.findOne({ documentNum: _documentNum }, function (err, ShippingReceipt) {
@@ -103,7 +106,7 @@ var Ent75 = (_documentNum) => {
                         boxheaderObject(doc);
                     });
                 }
-                someFunction(i,results);
+                someFunction(i, results);
 
             }
         });
