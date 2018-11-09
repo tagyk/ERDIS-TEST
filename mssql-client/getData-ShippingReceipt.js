@@ -53,26 +53,24 @@ var webconfig = {
     }
 };
 
-var boxheaderObject = (_documentNum, boxHeaderNo) => {
+var boxheaderObject = (doc) => {
     return new Promise((resolve, reject) => {
         var request = new sql.Request();
+        var boxHeaderNo = doc.boxHeader[0].barcode;
         request.query(`select *  from ENT0076  where S76KOLINO = ${boxHeaderNo}`, function (err, result) {
             if (err) console.log("ENT0076  " + err);
             for (var k = 0, len = result.rowsAffected; k < len; k++) {
                 var ENT0076 = result.recordset[k];
-                ShippingReceipt.findOne({
-                    documentNum: _documentNum
-                }, function (err, ShippingReceipt) {
-                    if (err) throw err;
-                    var boxHeader = ShippingReceipt.boxHeaders.filter(function (box) {
-                        return box.barcode === _documentNum;
-                    }).pop();
-                    ShippingReceipt.boxHeader.push({ barcode: ENT0075.S75KOLINO });
-                    ShippingReceipt.save()
+                ShippingReceipt.findById(doc._id, function (err, _ShippingReceipt) {
+                    var subdoc = _ShippingReceipt.boxHeader.id(doc.boxHeader[0]._id);
+                    subdoc.boxDetails.push({ barcode: ENT0076.S76SKU, qty: ENT0076.S76MIKTAR });
+                    _ShippingReceipt.save()
                         .then((doc) => {
-                            resolve();
+                            // console.log(doc);
+                            //fs.appendFile('tmp.json',JSON.stringify(doc,null,2));
+                            resolve(doc);
                         });
-                });;
+                });
             }
             resolve(true);
         });
@@ -85,23 +83,27 @@ var Ent75 = (_documentNum) => {
         request.query(`select S75KOLINO,S75SFIRM from ENT0075 where S75IRNO = ${_documentNum} group by S75KOLINO,S75SFIRM`, function (err, results) {
 
             if (err) console.log("ENT0075  " + err);
+
             for (var i = 0, len = results.rowsAffected; i < len; i++) {
-                var ENT0075 = results.recordset[i];
-                var promise = new Promise((resolve, reject) => {
-                    ShippingReceipt.findOne({ documentNum: _documentNum }, function (err, ShippingReceipt) {
-                        if (err) throw err;
-                        ShippingReceipt.boxHeader.push({ barcode: ENT0075.S75KOLINO });
-                        ShippingReceipt.save()
-                            .then((doc) => {
-                                console.log(doc);
-                                //fs.appendFile('tmp.json',JSON.stringify(doc,null,2));
-                                resolve(ENT0075.S75KOLINO);
-                            });
-                    });;
-                });
-                promise.then((boxHeaderNo) => {
-                   // boxheaderObject(_documentNum, boxHeaderNo);
-                });
+                var someFunction = function (i,results) {
+                    var ENT0075 = results.recordset[i];
+                    var promise = new Promise((resolve, reject) => {
+                        ShippingReceipt.findOne({ documentNum: _documentNum }, function (err, ShippingReceipt) {
+                            if (err) throw err;
+                            ShippingReceipt.boxHeader.push({ barcode: ENT0075.S75KOLINO });
+                            ShippingReceipt.save()
+                                .then((doc) => {
+                                    console.log(doc);
+                                    //fs.appendFile('tmp.json',JSON.stringify(doc,null,2));
+                                    resolve(doc);
+                                });
+                        });;
+                    });
+                    promise.then((doc) => {
+                        boxheaderObject(doc);
+                    });
+                }
+                someFunction(i,results);
 
             }
         });
@@ -114,7 +116,7 @@ var Ent09 = () => {
     return new Promise((resolve, reject) => {
         var request = new sql.Request();
         // query to the database and get the records
-        request.query("select * from ENT009 where S09INUM in ('30521329')", function (err, result) {
+        request.query("select * from ENT009 where S09INUM in ('30680025')", function (err, result) {
             if (err) console.log("ENT009  " + err);
             for (var i = 0, len = result.rowsAffected; i < len; i++) {
                 var ENT009 = result.recordset[i];
