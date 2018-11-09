@@ -42,6 +42,7 @@ var webconfig = {
     password: "465666",
     database: 'AXATAWM_CL',
     connectionString: "Driver={SQL Server Native Client 11.0};Server=#{server}\\sql;Database=#{database};Uid=#{user};Pwd=#{password};",
+    requestTimeout : 300000000,
     options: {
         trustedConnection: false,
         encrypt: false
@@ -67,7 +68,7 @@ var boxheaderObject = (doc) => {
                         subdoc.boxDetails.push({ barcode: ENT0076.S76SKU, qty: ENT0076.S76MIKTAR });
                         _ShippingReceipt.save()
                             .then((doc) => {
-                                // console.log(doc);
+                                console.log(doc);
                                 //fs.appendFile('tmp.json',JSON.stringify(doc,null,2));
                                 resolve(doc);
                             });
@@ -77,6 +78,8 @@ var boxheaderObject = (doc) => {
             }
         });
         resolve(true);
+    }).then(() =>{
+        fs.appendFile('tmp.json',"Done!!");
     });
 };
 
@@ -119,7 +122,7 @@ var Ent09 = () => {
     return new Promise((resolve, reject) => {
         var request = new sql.Request();
         // query to the database and get the records
-        request.query("select * from ENT009 where S09INUM in ('30680025')", function (err, result) {
+        request.query("select * from getOrders", function (err, result) {
             if (err) console.log("ENT009  " + err);
             for (var i = 0, len = result.rowsAffected; i < len; i++) {
                 var ENT009 = result.recordset[i];
