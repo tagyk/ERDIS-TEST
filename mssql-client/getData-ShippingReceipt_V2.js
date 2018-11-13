@@ -1,6 +1,9 @@
 const sql = require('mssql');
+const fs = require("fs");
 var { mongoose } = require('./../server/db/mongoose');
 var { ShippingReceipt } = require('./../server/models/ShippingReceipt');
+var queryBuilder = require('./queryBuilder');
+
 const config = {
     server: "erktrdepos03",
     user: "ax",
@@ -20,44 +23,41 @@ const config = {
 };
 
 async function ent009(_documentNum) {
-    let result
-    
     try {
         let pool = await sql.connect(config);
         result = await pool.request()
             .input('input_parameter', sql.NVarChar, _documentNum)
             .query('select S09INUM,S09IRTR from ENT009 where S09INUM = @input_parameter')
+        await sql.close();
         for (var i = 0, len = result.rowsAffected; i < len; i++) {
             var ENT009 = result.recordset[i];
             var shippingReceipts = new ShippingReceipt();
             shippingReceipts.documentNum = ENT009.S09INUM;
             shippingReceipts.documentDate = ENT009.S09IRTR;
             shippingReceipts.save()
-                .then( (temp) => {
+                .then((temp) => {
                     //console.log(temp);
                     const data = temp.documentNum;
                     return Promise.all([data]);
                 }, (e) => {
                     console.log(e);
-                }).then(async([data]) => {
-                    sql.close();    
-                    const doc = await ent075(data);
-                };
-                // ).then(async([data]) => {
-
-                // });
-            
-            
+                })
+                .then(async ([data]) => {
+                    await ent075(data);
+                })
         }
-        sql.close();
         
-
     }
     catch (err) {
         console.log(err);
         sql.close();
     }
-};
+    finally {
+        pool.close(); //closing connection after request is finished.
+    }
+    
+
+}
 
 
 async function ent075(_documentNum) {
@@ -65,53 +65,54 @@ async function ent075(_documentNum) {
         let pool = await sql.connect(config);
         let result = await pool.request()
             .input('input_parameter', sql.NVarChar, _documentNum)
-            .query('select S75KOLINO,S75SFIRM from ENT0075 where S75IRNO = @input_parameter group by S75KOLINO,S75SFIRM');
-        console.log(result);
+            .query('select S75KOLINO,S75SFIRM from ENT0075 where S75IRNO = @input_parameter group by S75KOLINO,S75SFIRM order by S75KOLINO desc');
+        await sql.close();
         for (var i = 0, len = result.rowsAffected; i < len; i++) {
             var ENT0075 = result.recordset[i];
-            ShippingReceipt.findOne({ documentNum: _documentNum }, function (err, ShippingReceipt) {
-                if (err) throw err;
-                if (ShippingReceipt.locationToAccount !== '') ShippingReceipt.locationToAccount = ENT0075.S75SFIRM;
-                ShippingReceipt.boxHeader.push({ barcode: ENT0075.S75KOLINO });
-                ShippingReceipt.save()
-                    .then((doc) => {
-                        console.log(doc);
-                    });
-            });
+            let vShippingReceipt = await ShippingReceipt.findOne({ documentNum: _documentNum });
+            if (vShippingReceipt.locationToAccount !== '') vShippingReceipt.locationToAccount = ENT0075.S75SFIRM;
+            await vShippingReceipt.boxHeader.push({ barcode: ENT0075.S75KOLINO });
+            let doc =  await vShippingReceipt.save();
+            await  ent076({ docId : vShippingReceipt._id , boxNo : ENT0075.S75KOLINO, subId : vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length-1]._id });
+            
         }
-        sql.close();
+        
     }
     catch (err) {
         console.log(err);
         sql.close();
     }
+    finally {
+        pool.close(); //closing connection after request is finished.
+    }
 };
 
 async function ent076(_doc) {
     try {
-        let boxHeaderNo = _doc.boxHeader[0].barcode;
+        //console.log(JSON.stringify(_doc, null, 2));
         let pool = await sql.connect(config);
         let result = await pool.request()
-            .input('input_parameter', sql.NVarChar, boxHeaderNo)
-            .query('select *  from ENT0076  where S76KOLINO = @input_parameter');
+            .input('input_parameter', sql.NVarChar, _doc.boxNo)
+            .query('select *  from ENT0076  where S76KOLINO = @input_parameter order by S76SKU desc');
+        await sql.close();
         for (var i = 0, len = result.rowsAffected; i < len; i++) {
-            var ENT0076 = result.recordset[k];
-            ShippingReceipt.findById(_doc._id, function (err, _ShippingReceipt) {
-                var subdoc = _ShippingReceipt.boxHeader.id(_doc.boxHeader[0]._id);
-                subdoc.boxDetails.push({ barcode: ENT0076.S76SKU, qty: ENT0076.S76MIKTAR });
-                _ShippingReceipt.save()
-                    .then((doc) => {
-                        //console.log(doc);
-                        //fs.appendFile('tmp.json', JSON.stringify(doc, null, 2));
-                        //resolve(doc);
-                    });
-            });
+            var ENT0076 = result.recordset[i];
+            (async function (ENT0076,_doc) {
+                //var _ShippingReceipt =  await ShippingReceipt.findOne({'boxHeader.barcode' : _doc.boxNo});
+                //console.log(JSON.stringify(_ShippingReceipt, null, 2));
+                var _ShippingReceipt = await ShippingReceipt.findById(_doc.docId)
+                var sub = await _ShippingReceipt.boxHeader.id(_doc.subId);
+                //console.log(JSON.stringify(sub, null, 2));
+                await sub.boxDetails.push({ barcode: ENT0076.S76SKU, qty: ENT0076.S76MIKTAR });
+                await _ShippingReceipt.save();
+                //fs.appendFile('tmp.json',JSON.stringify("+",null,2));
+            })(ENT0076,_doc);
         }
-        sql.close();
-
     } catch (err) {
         console.log(err);
-
+    }
+    finally {
+        pool.close(); //closing connection after request is finished.
     }
 };
 
@@ -123,20 +124,20 @@ async function ent076(_doc) {
 
 (async function () {
     try {
-        pool = await sql.connect(config);
-        result = await pool.request()
-            .query('select top(2) * from getOrders');
-        sql.close();
+        // pool = await sql.connect(config);
+        // result = await pool.request()
+        //     .query('select top(100) * from getOrders');
+        // await sql.close();
+        await queryBuilder.execSql('select top(100) * from getOrders');
         for (var i = 0, len = result.rowsAffected; i < len; i++) {
-            const docnum = await ent009(result.recordset[i].S09INUM);
-
-
+            const docnum = await ent009(result.recordset[i].S09INUM)
         }
         console.log("done");
 
     } catch (err) {
         // ... error checks
     }
+    
 })();
 
 sql.on('error', err => {
