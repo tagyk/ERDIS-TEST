@@ -1,4 +1,3 @@
-
 const sql      = require('mssql');
 const config = {
     server: "erktrdepos03",
@@ -17,27 +16,11 @@ const config = {
         idleTimeoutMillis: 30000
     }
 };
-const pool     = new sql.ConnectionPool(config);
+let pool;
 
+(async function (pool) {
+   let a =  await sql.connect(config);
+   pool = a ;
+})(pool);
 
-
-
-pool.on('error', err => {
-    if (err) {
-        console.log('sql errors', err);
-    }
-    if (!err) {
-        pool.connect();
-    }
-});
-
-
-exports.execSql = async function (sqlquery) {
-    try {
-        
-        let result = await pool.request().query(sqlquery);
-        return {success: result};
-    } catch (err) {
-        return {err: err};
-    } 
-};
+module.exports = {pool};
