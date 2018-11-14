@@ -2,7 +2,7 @@ const sql = require('mssql');
 const fs = require("fs");
 var { mongoose } = require('./../server/db/mongoose');
 var { ShippingReceipt } = require('./../server/models/ShippingReceipt');
-var pool = require('./pool');
+var {myPool} = require('./myPool');
 
 
 const config = {
@@ -29,11 +29,10 @@ const config = {
 
 async function ent009(_documentNum) {
     try {
-        
-        result = await pool.request()
+        let  pool = await myPool.newPool();
+        let result = await pool.request()
             .input('input_parameter', sql.NVarChar, _documentNum)
             .query('select S09INUM,S09IRTR from ENT009 where S09INUM = @input_parameter')
-        await sql.close();
         for (var i = 0, len = result.rowsAffected; i < len; i++) {
             var ENT009 = result.recordset[i];
             var shippingReceipts = new ShippingReceipt();
@@ -64,11 +63,10 @@ async function ent009(_documentNum) {
 
 async function ent075(_documentNum) {
     try {
-        
+        let  pool = await myPool.newPool();
         let result = await pool.request()
             .input('input_parameter', sql.NVarChar, _documentNum)
             .query('select S75KOLINO,S75SFIRM from ENT0075 where S75IRNO = @input_parameter group by S75KOLINO,S75SFIRM order by S75KOLINO desc');
-        await sql.close();
         for (var i = 0, len = result.rowsAffected; i < len; i++) {
             var ENT0075 = result.recordset[i];
             let vShippingReceipt = await ShippingReceipt.findOne({ documentNum: _documentNum });
@@ -87,6 +85,7 @@ async function ent075(_documentNum) {
 async function ent076(_doc) {
     try {
         //console.log(JSON.stringify(_doc, null, 2));
+        let  pool = await myPool.newPool();
         let result = await pool.request()
             .input('input_parameter', sql.NVarChar, _doc.boxNo)
             .query('select *  from ENT0076  where S76KOLINO = @input_parameter order by S76SKU desc');
@@ -119,19 +118,23 @@ sql.on('error', err => {
 
 (async function () {
     try {
-        //var  pool =  sql.connect(config);
-        var result = await pool.request()
-             .query('select top(100) * from getOrders');      
+        let  pool = await myPool.newPool();
+        let result = await pool.request()
+        .query('select top(10) * from getOrders');   
         for (var i = 0, len = result.rowsAffected; i < len; i++) {
             const docnum = await ent009(result.recordset[i].S09INUM)
         }
-        console.log("done");
+        
 
     } catch (err) {
         // ... error checks
     }
     
-})();
+})().then( ()=> {
+    console.log("done");
+}).catch((e)=> {
+    console.log();
+});;
 
 
 
