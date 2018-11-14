@@ -18,25 +18,18 @@ const config = {
         idleTimeoutMillis: 30000
     }
 };
+const pool1 = new mssql.ConnectionPool(config).connect();
 
-myPool.connect =  function () {
 
+myPool.connect =  async function () {
 
-    let promise =  mssql.connect(config);
-
-    promise.catch(function (err) {
-
-        // handling error
-        mssql.close();
-        myPool.connected = false;
-    });
-    return promise;
+    return await pool1;
 };
+
 
 myPool.newPool = function () {
 
     return new Promise(function (resolve, reject) {
-
 
         if (!myPool.connected) {
 
@@ -45,9 +38,11 @@ myPool.newPool = function () {
                     myPool.connected = true;
                     resolve(result);
                 });
-        } else {
-
-            resolve(new mssql.ConnectionPool(config));
+        } 
+        else {
+            resolve(pool1.then(function(value) {
+                return(value);
+              }));
         }
     });
 };
