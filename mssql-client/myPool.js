@@ -42,7 +42,7 @@ myPool.newPool = function () {
         else {
             resolve(pool1.then(function(value) {
                 return(value);
-              }));
+            }));
         }
     });
 };

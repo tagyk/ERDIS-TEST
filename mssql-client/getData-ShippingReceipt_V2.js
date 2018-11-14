@@ -120,7 +120,7 @@ sql.on('error', err => {
     try {
         let  pool = await myPool.newPool();
         let result = await pool.request()
-        .query('select top(10) * from getOrders');   
+        .query('select * from getOrders');   
         for (var i = 0, len = result.rowsAffected; i < len; i++) {
             const docnum = await ent009(result.recordset[i].S09INUM)
         }
