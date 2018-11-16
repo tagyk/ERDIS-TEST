@@ -11,7 +11,7 @@ const config = {
     password: "465666",
     database: 'AXATAWM_CL',
     connectionString: "Driver={SQL Server Native Client 11.0};Server=#{server}\\sql;Database=#{database};Uid=#{user};Pwd=#{password};",
-    requestTimeout: 22000,
+    requestTimeout: 100000,
     options: {
         trustedConnection: true,
         encrypt: false
@@ -27,7 +27,7 @@ const config = {
 
 
 
-async function ent009(_documentNum) {
+async function ent009(_documentNum,_totalQty) {
     try {
         let  pool = await myPool.newPool();
         let result = await pool.request()
@@ -35,20 +35,21 @@ async function ent009(_documentNum) {
             .query('select S09INUM,S09IRTR from ENT009 where S09INUM = @input_parameter')
         for (var i = 0, len = result.rowsAffected; i < len; i++) {
             var ENT009 = result.recordset[i];
-            var shippingReceipts = new ShippingReceipt();
-            shippingReceipts.documentNum = ENT009.S09INUM;
-            shippingReceipts.documentDate = ENT009.S09IRTR;
-            shippingReceipts.save()
-                .then((temp) => {
-                    //console.log(temp);
-                    const data = temp.documentNum;
-                    return Promise.all([data]);
+            var shippingReceipts = new ShippingReceipt({
+                documentNum: ENT009.S09INUM,
+                documentDate: ENT009.S09IRTR,
+                totalQTY: _totalQty
+            })
+            .save().then((temp) => {
+                //console.log(temp);
+                const data = temp.documentNum;
+                return Promise.all([data]);
                 }, (e) => {
                     console.log(e);
-                })
-                .then(async ([data]) => {
-                    await ent075(data);
-                })
+            })
+            .then(async ([data]) => {
+                await ent075(data);
+            })
         }
         
     }
@@ -120,20 +121,21 @@ sql.on('error', err => {
     try {
         let  pool = await myPool.newPool();
         let result = await pool.request()
-        .query('select * from getOrders');   
+        .query('select * from getOrders');   // order by S09INUM desc  OFFSET 0 rows  fetch next 50  rows only
         for (var i = 0, len = result.rowsAffected; i < len; i++) {
-            const docnum = await ent009(result.recordset[i].S09INUM)
+            const docnum = await ent009(result.recordset[i].S09INUM,result.recordset[i].DetailsCount);
         }
         
 
     } catch (err) {
         // ... error checks
+        console.log(err);
     }
     
 })().then( ()=> {
     console.log("done");
 }).catch((e)=> {
-    console.log();
+    console.log(e);
 });;
 
 

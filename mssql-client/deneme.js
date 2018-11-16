@@ -1,18 +1,12 @@
-var root = new Array();
-var child = new Array();
 
-child[0] = {
-    ad : "adssd",
-    soyad: "asd"
-}
-child[1] = {
-    ad : "adssd",
-    soyad: "asd"
-}
+var { ShippingReceipt } = require('./../server/models/ShippingReceipt');
 
-root.push(child);
-
-
-
-
-console.log (root);
+var ShippingReceipts = ShippingReceipt.find()
+.where('totalQTY').gt(50)
+.sort('totalQTY')
+.select('totalQTY documentNum')
+.exec(function(err,data){
+    if(!err){
+        console.log(data);
+    }
+});
