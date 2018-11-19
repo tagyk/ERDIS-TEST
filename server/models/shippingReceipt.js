@@ -43,7 +43,7 @@ var boxHeaderSchema = new mongoose.Schema({
         type: Number
     },
     type:{
-        type: String
+        type: String,
     },
     volume:{
         type: Number

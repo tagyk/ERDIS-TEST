@@ -22,7 +22,7 @@ const config = {
 const pool1 = new mssql.ConnectionPool(config).connect();
 
 
-myPool.connect =  async function () {
+myPool.connect = async function () {
 
     return await pool1;
 };
@@ -31,18 +31,16 @@ myPool.connect =  async function () {
 myPool.newPool = function () {
 
     return new Promise(function (resolve, reject) {
-
         if (!myPool.connected) {
-
             myPool.connect()
                 .then(function (result) {
                     myPool.connected = true;
                     resolve(result);
                 });
-        } 
+        }
         else {
-            resolve(pool1.then(function(value) {
-                return(value);
+            resolve(pool1.then(function (value) {
+                return (value);
             }));
         }
     });

@@ -39,7 +39,7 @@ app.get('/shippingReceipt', authenticate, (req, res) => {
 app.patch('/shippingReceipt/updateStatus/:boxId',authenticate,(req, res) => {
     var _refBoxId = req.params.boxId;
     var body = _.pick(req.body, ['status']);
-    ShippingReceiptStatus.findOneAndUpdate({refBoxId : _refBoxId }, { $set: { status: body.status } }, { new: true }, function (err, doc) {
+    ShippingReceiptStatus.update({refBoxId : _refBoxId }, { $set: { status: body.status,} }, { new: true }, function (err, doc) {
         res.send({doc});
     }, (e) => {
         res.status(400).send(e);
@@ -52,7 +52,7 @@ app.patch('/shippingReceipt/updateStatus/:boxId',authenticate,(req, res) => {
 app.patch('/shippingReceipt/updateLocation/:boxId', (req, res) => {
 
     var body = _.pick(req.body, ['documentNum', 'boxBarcode', 'location']);
-    ShippingReceiptStatus.findOneAndUpdate({ refBoxId : _refBoxId }, { $set: { location: body.location } }, { new: true }, function (err, doc) {
+    ShippingReceiptStatus.updateOne({ refBoxId : _refBoxId }, { $set: { location: body.location } }, { new: true }, function (err, doc) {
         res.send({doc});
     }, (e) => {
         res.status(400).send(e);
