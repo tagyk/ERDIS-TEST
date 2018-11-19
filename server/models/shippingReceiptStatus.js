@@ -48,7 +48,7 @@ var ShippingReceiptStatusSchema = new mongoose.Schema({
 ShippingReceiptStatusSchema.pre('update', function (next) {
     var shippingReceiptStatus = this;
     //if (shippingReceiptStatus.isModified('status')) {
-        shippingReceiptStatus.timeline.push({ prevStatus: shippingReceiptStatus.status, prevUpdateAt: shippingReceiptStatus.updated_at });
+       3 shippingReceiptStatus.timeline.push({ prevStatus: shippingReceiptStatus.status, prevUpdateAt: shippingReceiptStatus.updated_at });
         shippingReceiptStatus.updated_at = new Date();
         next();
     // }
