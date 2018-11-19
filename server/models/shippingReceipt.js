@@ -68,9 +68,7 @@ var ShippingReceiptSchema = new mongoose.Schema({
         
     },
     documentStatus: {
-        type: String,
-        enum: ['Aktif', 'Pasif'],
-        
+        type: Boolean
     },
     documentNum:{
         type: String,

@@ -2,6 +2,7 @@ const sql = require('mssql');
 const fs = require("fs");
 var { mongoose } = require('./../server/db/mongoose');
 var { ShippingReceipt } = require('./../server/models/ShippingReceipt');
+var { ShippingReceiptStatus } = require('./../server/models/ShippingReceiptStatus');
 var { myPool } = require('./myPool');
 
 
@@ -67,6 +68,12 @@ async function getEnt075(_documentNum) {
             if (vShippingReceipt.locationToAccount !== '') vShippingReceipt.locationToAccount = ENT0075.S75SFIRM;
             await vShippingReceipt.boxHeader.push({ barcode: ENT0075.S75KOLINO });
             await vShippingReceipt.save();
+            await new ShippingReceiptStatus({
+                documentNum: vShippingReceipt.documentNum,
+                refBoxId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id,
+                boxBarcode: ENT0075.S75KOLINO,
+                status: "Hazır"
+            }).save();
             await getEnt076({ docId: vShippingReceipt._id, boxNo: ENT0075.S75KOLINO, subId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id });
         }
     }
@@ -98,8 +105,6 @@ async function getEnt076(_doc) {
 sql.on('error', err => {
     console.log(err);
 });
-
-
 
 (async function () {
     try {

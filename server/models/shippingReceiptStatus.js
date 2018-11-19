@@ -5,11 +5,11 @@ const validator = require('validator');
 var ShippingReceiptStatusSchema = new mongoose.Schema({
 
     refBoxId:{ 
-        type: Schema.Types.ObjectId 
+        type: mongoose.Schema.Types.ObjectId 
     },
     status:{
         type: String,
-        enum: ['Aktif', 'Pasif'],
+        enum: ['Hazır','Alındı','Yolda',"Teslim edildi"],
     },
     documentLocation:{
         type: String

@@ -17,10 +17,8 @@ app.use(bodyParser.json());
 
 //POST /shippingReceipt
 app.post('/shippingReceipt', (req, res) => {
-
     var body = req.body;// _.pick(req.body, ['documentNum', 'locationTo']);
     var shippingReceipts = new ShippingReceipt(body);
-
     shippingReceipts.save().then((doc) => {
         res.send(doc);
     }, (e) => {
@@ -38,11 +36,11 @@ app.get('/shippingReceipt', authenticate, (req, res) => {
 });
 
 
-app.post('/shippingReceipt/updateStatus', (req, res) => {
-
-    var body = _.pick(req.body, ['documentNum', 'boxBarcode', 'status']);
-    ShippingReceiptStatus.findOneAndUpdate({ documentNum: body.documentNum, boxBarcode: body.boxBarcode }, { $set: { status: body.status } }, { new: true }, function (err, doc) {
-        res.send(doc.location);
+app.patch('/shippingReceipt/updateStatus/:boxId',authenticate,(req, res) => {
+    var _refBoxId = req.params.boxId;
+    var body = _.pick(req.body, ['status']);
+    ShippingReceiptStatus.findOneAndUpdate({refBoxId : _refBoxId }, { $set: { status: body.status } }, { new: true }, function (err, doc) {
+        res.send({doc});
     }, (e) => {
         res.status(400).send(e);
     });
@@ -51,11 +49,11 @@ app.post('/shippingReceipt/updateStatus', (req, res) => {
 
 
 
-app.post('/shippingReceipt/updateLocation', (req, res) => {
+app.patch('/shippingReceipt/updateLocation/:boxId', (req, res) => {
 
     var body = _.pick(req.body, ['documentNum', 'boxBarcode', 'location']);
-    ShippingReceiptStatus.findOneAndUpdate({ documentNum: body.documentNum, boxBarcode: body.boxBarcode }, { $set: { location: body.location } }, { new: true }, function (err, doc) {
-        res.send(doc.location);
+    ShippingReceiptStatus.findOneAndUpdate({ refBoxId : _refBoxId }, { $set: { location: body.location } }, { new: true }, function (err, doc) {
+        res.send({doc});
     }, (e) => {
         res.status(400).send(e);
     });
