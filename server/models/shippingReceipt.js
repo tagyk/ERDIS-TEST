@@ -73,7 +73,9 @@ var ShippingReceiptSchema = new mongoose.Schema({
         
     },
     documentNum:{
-        type: String
+        type: String,
+        unique : true, 
+        required : true
     },
     documentDate:{
         type: String
