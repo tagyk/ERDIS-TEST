@@ -45,16 +45,13 @@ var ShippingReceiptStatusSchema = new mongoose.Schema({
 //     this.update({}, { $set: { updated_at: new Date() } });
 // });
 
-ShippingReceiptStatusSchema.pre('update', function (next) {
+ShippingReceiptStatusSchema.pre('update', function () {
     var shippingReceiptStatus = this;
-    //if (shippingReceiptStatus.isModified('status')) {
-       3 shippingReceiptStatus.timeline.push({ prevStatus: shippingReceiptStatus.status, prevUpdateAt: shippingReceiptStatus.updated_at });
-        shippingReceiptStatus.updated_at = new Date();
-        next();
-    // }
-    // else {
-    //     shippingReceiptStatus.update({}, { $set: { updated_at: new Date() } });
-    // }
+
+    shippingReceiptStatus.update({}, {
+        $push: { timeline: { prevStatus: shippingReceiptStatus.status, prevUpdateAt: shippingReceiptStatus.updated_at } } 
+        //$set:  { updated_at: new Date() }                         
+    });    
 });
 
 var ShippingReceiptStatus = mongoose.model('ShippingReceiptStatus', ShippingReceiptStatusSchema);
