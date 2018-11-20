@@ -45,15 +45,9 @@ var ShippingReceiptStatusSchema = new mongoose.Schema({
 //     this.update({}, { $set: { updated_at: new Date() } });
 // });
 
-ShippingReceiptStatusSchema.pre('update', function () {
-    var shippingReceiptStatus = this;
 
-    shippingReceiptStatus.update({}, {
-        $push: { timeline: { prevStatus: shippingReceiptStatus.status, prevUpdateAt: shippingReceiptStatus.updated_at } } 
-        //$set:  { updated_at: new Date() }                         
-    });    
-});
 
 var ShippingReceiptStatus = mongoose.model('ShippingReceiptStatus', ShippingReceiptStatusSchema);
+
 
 module.exports = { ShippingReceiptStatus }
