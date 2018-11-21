@@ -1,0 +1,130 @@
+/* 1 */
+{
+    "_id" : ObjectId("5bf295d4b6f1a0403486bd80"),
+    "documentNum" : "30688028",
+    "refBoxId" : ObjectId("5bf295d4b6f1a0403486bd7f"),
+    "boxBarcode" : "4205601523",
+    "status" : "1y",
+    "__v" : 0
+}
+
+/* 2 */
+{
+    "_id" : ObjectId("5bf2bcc1bb45502ca43e6a1b"),
+    "created_at" : ISODate("2018-11-19T16:36:50.607+03:00"),
+    "documentNum" : "30678119",
+    "refBoxId" : ObjectId("5bf2bcc1bb45502ca43e6a1a"),
+    "boxBarcode" : "4205547320",
+    "status" : "3a",
+    "timeline" : [],
+    "__v" : 0,
+    "updated_at" : ISODate("2018-11-19T17:29:59.104+03:00")
+}
+
+/* 3 */
+{
+    "_id" : ObjectId("5bf2bcc1bb45502ca43e6a1f"),
+    "created_at" : ISODate("2018-11-19T16:36:50.607+03:00"),
+    "documentNum" : "30678120",
+    "refBoxId" : ObjectId("5bf2bcc1bb45502ca43e6a1e"),
+    "boxBarcode" : "4205547318",
+    "status" : "Hazır",
+    "timeline" : [],
+    "__v" : 0
+}
+
+/* 4 */
+{
+    "_id" : ObjectId("5bf2bcc2bb45502ca43e6a23"),
+    "created_at" : ISODate("2018-11-19T16:36:50.607+03:00"),
+    "documentNum" : "30678121",
+    "refBoxId" : ObjectId("5bf2bcc2bb45502ca43e6a22"),
+    "boxBarcode" : "4205547316",
+    "status" : "Hazır",
+    "timeline" : [],
+    "__v" : 0
+}
+
+/* 5 */
+{
+    "_id" : ObjectId("5bf2bcc2bb45502ca43e6a27"),
+    "created_at" : ISODate("2018-11-19T16:36:50.607+03:00"),
+    "documentNum" : "30678122",
+    "refBoxId" : ObjectId("5bf2bcc2bb45502ca43e6a26"),
+    "boxBarcode" : "4205547317",
+    "status" : "Hazır",
+    "timeline" : [],
+    "__v" : 0
+}
+
+/* 6 */
+{
+    "_id" : ObjectId("5bf2bcc3bb45502ca43e6a2b"),
+    "created_at" : ISODate("2018-11-19T16:36:50.607+03:00"),
+    "documentNum" : "30678123",
+    "refBoxId" : ObjectId("5bf2bcc3bb45502ca43e6a2a"),
+    "boxBarcode" : "4205547323",
+    "status" : "Hazır",
+    "timeline" : [],
+    "__v" : 0
+}
+
+/* 7 */
+{
+    "_id" : ObjectId("5bf2bcc3bb45502ca43e6a2f"),
+    "created_at" : ISODate("2018-11-19T16:36:50.607+03:00"),
+    "documentNum" : "30678124",
+    "refBoxId" : ObjectId("5bf2bcc3bb45502ca43e6a2e"),
+    "boxBarcode" : "4205547321",
+    "status" : "Hazır",
+    "timeline" : [],
+    "__v" : 0
+}
+
+/* 8 */
+{
+    "_id" : ObjectId("5bf2bcc4bb45502ca43e6a33"),
+    "created_at" : ISODate("2018-11-19T16:36:50.607+03:00"),
+    "documentNum" : "30678125",
+    "refBoxId" : ObjectId("5bf2bcc4bb45502ca43e6a32"),
+    "boxBarcode" : "4205547314",
+    "status" : "Hazır",
+    "timeline" : [],
+    "__v" : 0
+}
+
+/* 9 */
+{
+    "_id" : ObjectId("5bf2bcc4bb45502ca43e6a37"),
+    "created_at" : ISODate("2018-11-19T16:36:50.607+03:00"),
+    "documentNum" : "30678126",
+    "refBoxId" : ObjectId("5bf2bcc4bb45502ca43e6a36"),
+    "boxBarcode" : "4205547333",
+    "status" : "Hazır",
+    "timeline" : [],
+    "__v" : 0
+}
+
+/* 10 */
+{
+    "_id" : ObjectId("5bf2bcc5bb45502ca43e6a3b"),
+    "created_at" : ISODate("2018-11-19T16:36:50.607+03:00"),
+    "documentNum" : "30678127",
+    "refBoxId" : ObjectId("5bf2bcc5bb45502ca43e6a3a"),
+    "boxBarcode" : "4205547329",
+    "status" : "Hazır",
+    "timeline" : [],
+    "__v" : 0
+}
+
+/* 11 */
+{
+    "_id" : ObjectId("5bf2bcc5bb45502ca43e6a3f"),
+    "created_at" : ISODate("2018-11-19T16:36:50.607+03:00"),
+    "documentNum" : "30678128",
+    "refBoxId" : ObjectId("5bf2bcc5bb45502ca43e6a3e"),
+    "boxBarcode" : "4205547334",
+    "status" : "Hazır",
+    "timeline" : [],
+    "__v" : 0
+}

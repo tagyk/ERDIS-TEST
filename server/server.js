@@ -7,6 +7,7 @@ var { mongoose } = require('./db/mongoose');
 var { User } = require('./models/user');
 var { ShippingReceipt } = require('./models/ShippingReceipt');
 var { authenticate } = require('./middleware/authenticate');
+var { ShippingReceiptStatus } = require('./models/ShippingReceiptStatus');
 
 var app = express();
 app.use(bodyParser.json());
@@ -16,10 +17,8 @@ app.use(bodyParser.json());
 
 //POST /shippingReceipt
 app.post('/shippingReceipt', (req, res) => {
-
     var body = req.body;// _.pick(req.body, ['documentNum', 'locationTo']);
     var shippingReceipts = new ShippingReceipt(body);
-
     shippingReceipts.save().then((doc) => {
         res.send(doc);
     }, (e) => {
@@ -35,6 +34,39 @@ app.get('/shippingReceipt', authenticate, (req, res) => {
         res.status(400).send(e);
     });
 });
+
+
+app.patch('/shippingReceipt/updateStatus/:boxId', authenticate, (req, res) => {
+    var _refBoxId = req.params.boxId;
+    var body = _.pick(req.body, ['status']);
+
+    ShippingReceiptStatus.findOne({ refBoxId: _refBoxId }, function (err, result) {
+
+        ShippingReceiptStatus.findByIdAndUpdate(result._id, {
+            $push: { timeline: { prevStatus: result.status, prevUpdateAt: result.updated_at } },
+            $set: { status: body.status ,updated_at: new Date() }
+        }, { new: false }, function (err, doc) {
+            res.send({ doc });
+        }, (e) => {
+            res.status(400).send(e);
+        });
+    });
+});
+
+
+
+
+app.patch('/shippingReceipt/updateLocation/:boxId', (req, res) => {
+
+    var body = _.pick(req.body, ['documentNum', 'boxBarcode', 'location']);
+    ShippingReceiptStatus.updateOne({ refBoxId: _refBoxId }, { $set: { location: body.location } }, { new: true }, function (err, doc) {
+        res.send({ doc });
+    }, (e) => {
+        res.status(400).send(e);
+    });
+});
+
+
 
 
 
@@ -77,11 +109,11 @@ app.post('/users/login', (req, res) => {
 // REMOVE TOKEN
 app.delete('/users/me/token', authenticate, (req, res) => {
     req.user.removeToken(req.token).then(() => {
-      res.status(200).send();
+        res.status(200).send();
     }, () => {
-      res.status(400).send();
+        res.status(400).send();
     });
-  });
+});
 
 
 

@@ -43,7 +43,7 @@ var boxHeaderSchema = new mongoose.Schema({
         type: Number
     },
     type:{
-        type: String
+        type: String,
     },
     volume:{
         type: Number
@@ -68,12 +68,12 @@ var ShippingReceiptSchema = new mongoose.Schema({
         
     },
     documentStatus: {
-        type: String,
-        enum: ['Aktif', 'Pasif'],
-        
+        type: Boolean
     },
     documentNum:{
-        type: String
+        type: String,
+        unique : true, 
+        required : true
     },
     documentDate:{
         type: String
