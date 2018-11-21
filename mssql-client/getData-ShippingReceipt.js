@@ -94,10 +94,11 @@ async function getEnt076(_doc) {
             var _ShippingReceipt = await ShippingReceipt.findById(_doc.docId);
             var sub = await _ShippingReceipt.boxHeader.id(_doc.subId);
             await sub.boxDetails.push({ barcode: ENT0076.S76SKU, qty: ENT0076.S76MIKTAR });
-            await _ShippingReceipt.save();
+            await _ShippingReceipt.save();  
+            
         }
     } catch (err) {
-        console.log(err);
+        console.log(err); 
     }
 
 };
