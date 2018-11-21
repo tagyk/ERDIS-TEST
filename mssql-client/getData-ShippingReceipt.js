@@ -50,9 +50,6 @@ async function getEnt009(_documentNum, _totalQty) {
     catch (err) {
         console.log(err);
     }
-
-
-
 };
 
 
@@ -80,7 +77,6 @@ async function getEnt075(_documentNum) {
     catch (err) {
         console.log(err);
     }
-
 };
 
 async function getEnt076(_doc) {
