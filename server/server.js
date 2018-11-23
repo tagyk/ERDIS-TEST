@@ -58,9 +58,7 @@ app.get('/shippingReceipt/status/:documentNum', authenticate, (req, res) => {
 app.patch('/shippingReceipt/updateStatus/:boxId', authenticate, (req, res) => {
     var _refBoxId = req.params.boxId;
     var body = _.pick(req.body, ['status']);
-
     ShippingReceiptStatus.findOne({ refBoxId: _refBoxId }, function (err, result) {
-
         ShippingReceiptStatus.findByIdAndUpdate(result._id, {
             $push: { statusTimeline: { prevStatus: result.status, prevUpdateAt: result.statusUpdatedAt } },
             $set: { status: body.status, statusUpdatedAt: new Date() }
@@ -76,12 +74,9 @@ app.patch('/shippingReceipt/updateStatus/:boxId', authenticate, (req, res) => {
 
 // GET /shippingReceiptStatus updateLocation
 app.patch('/shippingReceipt/updateLocation/:boxId', authenticate, (req, res) => {
-
     var _refBoxId = req.params.boxId;
     var body = _.pick(req.body, ['location']);
-
     ShippingReceiptStatus.findOne({ refBoxId: _refBoxId }, function (err, result) {
-
         ShippingReceiptStatus.findByIdAndUpdate(result._id, {
             $push: { locationTimeline: { prevStatus: result.location, prevUpdateAt: result.locationUpdatedAt } },
             $set: { location: body.location, locationUpdatedAt: new Date() }

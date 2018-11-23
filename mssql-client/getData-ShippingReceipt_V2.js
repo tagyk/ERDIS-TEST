@@ -49,7 +49,6 @@ async function getEnt009(_documentNum, _totalQty) {
                 await getEnt075(data);
             })
         }
-
     }
     catch (err) {
         console.log(err);
@@ -91,14 +90,10 @@ async function getEnt076(_doc) {
         for (var i = 0, len = result.rowsAffected; i < len; i++) {
             var ENT0076 = result.recordset[i];
             (async function (ENT0076, _doc) {
-                //var _ShippingReceipt =  await ShippingReceipt.findOne({'boxHeader.barcode' : _doc.boxNo});
-                //console.log(JSON.stringify(_ShippingReceipt, null, 2));
                 var _ShippingReceipt = await ShippingReceipt.findById(_doc.docId)
                 var sub = await _ShippingReceipt.boxHeader.id(_doc.subId);
-                //console.log(JSON.stringify(sub, null, 2));
                 await sub.boxDetails.push({ barcode: ENT0076.S76SKU, qty: ENT0076.S76MIKTAR });
                 await _ShippingReceipt.save();
-                //fs.appendFile('tmp.json',JSON.stringify("+",null,2));
             })(ENT0076, _doc);
         }
     } catch (err) {
