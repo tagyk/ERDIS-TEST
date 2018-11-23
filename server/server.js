@@ -35,7 +35,26 @@ app.get('/shippingReceipt', authenticate, (req, res) => {
     });
 });
 
+// GET /shippingReceiptStatus
+app.get('/shippingReceipt/status', authenticate, (req, res) => {
+    ShippingReceiptStatus.find().then((result) => {
+        res.send({ result });
+    }, (e) => {
+        res.status(400).send(e);
+    });
+});
 
+// GET /shippingReceiptStatus documentNum
+app.get('/shippingReceipt/status/:documentNum', authenticate, (req, res) => {
+    var _docNum = req.params.documentNum;
+    ShippingReceiptStatus.find({documentNum : _docNum}).then((result) => {
+        res.send({ result });
+    }, (e) => {
+        res.status(400).send(e);
+    });
+});
+
+// GET /shippingReceiptStatus UpdateStatus
 app.patch('/shippingReceipt/updateStatus/:boxId', authenticate, (req, res) => {
     var _refBoxId = req.params.boxId;
     var body = _.pick(req.body, ['status']);
@@ -55,7 +74,7 @@ app.patch('/shippingReceipt/updateStatus/:boxId', authenticate, (req, res) => {
 
 
 
-
+// GET /shippingReceiptStatus updateLocation
 app.patch('/shippingReceipt/updateLocation/:boxId', authenticate, (req, res) => {
 
     var _refBoxId = req.params.boxId;
