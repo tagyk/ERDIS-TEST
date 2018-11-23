@@ -20,7 +20,7 @@ var ShippingReceiptStatusSchema = new mongoose.Schema({
         type: String,
         enum: ['Hazır', 'Alındı', 'Yolda', "Teslim edildi"],
     },
-    documentLocation: {
+    location: {
         type: String
     },
     documentNum: {
@@ -29,15 +29,22 @@ var ShippingReceiptStatusSchema = new mongoose.Schema({
     boxBarcode: {
         type: String
     },
-    created_at: {
+    createdAt: {
         type: Date,
         default: Date.now()
     },
-    updated_at: {
+    statusUpdatedAt: {
+        type: Date
+    },
+    locationUpdatedAt: {
         type: Date
     },
 
-    timeline: [timelineSchema]
+    statusTimeline: [timelineSchema],
+    
+    locationTimeline: [timelineSchema]
+
+
 
 
 });

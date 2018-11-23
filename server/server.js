@@ -43,10 +43,10 @@ app.patch('/shippingReceipt/updateStatus/:boxId', authenticate, (req, res) => {
     ShippingReceiptStatus.findOne({ refBoxId: _refBoxId }, function (err, result) {
 
         ShippingReceiptStatus.findByIdAndUpdate(result._id, {
-            $push: { timeline: { prevStatus: result.status, prevUpdateAt: result.updated_at } },
-            $set: { status: body.status ,updated_at: new Date() }
-        }, { new: false }, function (err, doc) {
-            res.send({ doc });
+            $push: { statusTimeline: { prevStatus: result.status, prevUpdateAt: result.statusUpdatedAt } },
+            $set: { status: body.status, statusUpdatedAt: new Date() }
+        }, { new: true }, function (err, doc) {
+            res.send({ status: doc.status, uptDate: doc.statusUpdatedAt });
         }, (e) => {
             res.status(400).send(e);
         });
@@ -56,13 +56,21 @@ app.patch('/shippingReceipt/updateStatus/:boxId', authenticate, (req, res) => {
 
 
 
-app.patch('/shippingReceipt/updateLocation/:boxId', (req, res) => {
+app.patch('/shippingReceipt/updateLocation/:boxId', authenticate, (req, res) => {
 
-    var body = _.pick(req.body, ['documentNum', 'boxBarcode', 'location']);
-    ShippingReceiptStatus.updateOne({ refBoxId: _refBoxId }, { $set: { location: body.location } }, { new: true }, function (err, doc) {
-        res.send({ doc });
-    }, (e) => {
-        res.status(400).send(e);
+    var _refBoxId = req.params.boxId;
+    var body = _.pick(req.body, ['location']);
+
+    ShippingReceiptStatus.findOne({ refBoxId: _refBoxId }, function (err, result) {
+
+        ShippingReceiptStatus.findByIdAndUpdate(result._id, {
+            $push: { locationTimeline: { prevStatus: result.location, prevUpdateAt: result.locationUpdatedAt } },
+            $set: { location: body.location, locationUpdatedAt: new Date() }
+        }, { new: true }, function (err, doc) {
+            res.send({ location: doc.location, uptDate: doc.locationUpdatedAt });
+        }, (e) => {
+            res.status(400).send(e);
+        });
     });
 });
 

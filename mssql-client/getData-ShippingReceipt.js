@@ -6,23 +6,6 @@ var { ShippingReceiptStatus } = require('./../server/models/ShippingReceiptStatu
 var { myPool } = require('./myPool');
 
 
-const config = {
-    server: "erktrdepos03",
-    user: "ax",
-    password: "465666",
-    database: 'AXATAWM_CL',
-    connectionString: "Driver={SQL Server Native Client 11.0};Server=#{server}\\sql;Database=#{database};Uid=#{user};Pwd=#{password};",
-    requestTimeout: 100000,
-    options: {
-        trustedConnection: true,
-        encrypt: false
-    },
-    pool: {
-        max: 10,
-        min: 0,
-        idleTimeoutMillis: 30000
-    }
-};
 
 
 
@@ -69,7 +52,8 @@ async function getEnt075(_documentNum) {
                 documentNum: vShippingReceipt.documentNum,
                 refBoxId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id,
                 boxBarcode: ENT0075.S75KOLINO,
-                status: "Hazır"
+                status: "Hazır",
+                location:"Depo"
             }).save();
             await getEnt076({ docId: vShippingReceipt._id, boxNo: ENT0075.S75KOLINO, subId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id });
         }

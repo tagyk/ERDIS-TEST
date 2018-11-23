@@ -109,6 +109,10 @@ var ShippingReceiptSchema = new mongoose.Schema({
     locationToAddress:{
         type: String
     },
+    createdAt: {
+        type: Date,
+        default: Date.now()
+    },
     boxHeader : [boxHeaderSchema],
     eCommerces : [eCommerceSchema]
 });
