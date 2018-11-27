@@ -28,6 +28,12 @@ var boxDetailSchema = new mongoose.Schema({
     },
     qty:{
         type: Number
+    },
+    isAssorment:{
+        type: Boolean
+    },
+    assormentBarcode:{
+        type: String
     }
 });
 
@@ -46,6 +52,12 @@ var boxHeaderSchema = new mongoose.Schema({
         type: String,
     },
     volume:{
+        type: Number
+    },
+    volumetricWeight:{
+        type: Number
+    },
+    Weight:{
         type: Number
     },
     boxDetails : [boxDetailSchema]
@@ -112,6 +124,10 @@ var ShippingReceiptSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now()
+    },
+    // Detay
+    detailsLength:{
+        type: Number
     },
     boxHeader : [boxHeaderSchema],
     eCommerces : [eCommerceSchema]
