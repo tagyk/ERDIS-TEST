@@ -66,17 +66,21 @@ async function getEnt075(_documentNum) {
         for (var i = 0, len = result.recordset.length; i < len; i++) {
             var ENT0075 = result.recordset[i];
             let vShippingReceipt = await ShippingReceipt.findOne({ documentNum: _documentNum });
-            if (vShippingReceipt.locationToAccount !== '') vShippingReceipt.locationToAccount = ENT0075.S75SFIRM;
-            await vShippingReceipt.boxHeader.push({ barcode: ENT0075.S75KOLINO });
+            await vShippingReceipt.boxHeader.push({ 
+                boxBarcode: ENT0075.BoxBarcode,
+                volume: ENT0075.Volume,
+                volumetricWeight: ENT0075.VolumetricWeight,
+                weight: ENT0075.Weight
+            });
             await vShippingReceipt.save();
             await new ShippingReceiptStatus({
                 documentNum: vShippingReceipt.documentNum,
                 refBoxId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id,
-                boxBarcode: ENT0075.S75KOLINO,
+                boxBarcode: ENT0075.BoxBarcode,
                 status: "Hazır",
                 location: "Depo"
             }).save();
-            await getEnt076({ docId: vShippingReceipt._id, boxNo: ENT0075.S75KOLINO, subId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id });
+            await getEnt076({ docId: vShippingReceipt._id, boxNo: ENT0075.BoxBarcode, subId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id });
         }
     }
     catch (err) {

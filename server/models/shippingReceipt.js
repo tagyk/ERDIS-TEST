@@ -38,18 +38,11 @@ var boxDetailSchema = new mongoose.Schema({
 });
 
 var boxHeaderSchema = new mongoose.Schema({
-    status:{
-        type: Boolean
-    },
-    barcode:{
+    boxBarcode:{
         type: String
-    },
-    
+    },   
     totalQty:{
         type: Number
-    },
-    type:{
-        type: String,
     },
     volume:{
         type: Number
@@ -57,7 +50,7 @@ var boxHeaderSchema = new mongoose.Schema({
     volumetricWeight:{
         type: Number
     },
-    Weight:{
+    weight:{
         type: Number
     },
     boxDetails : [boxDetailSchema]
