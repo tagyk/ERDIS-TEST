@@ -115,8 +115,7 @@ var ShippingReceiptSchema = new mongoose.Schema({
         type: String
     },
     createdAt: {
-        type: Date,
-        default: Date.now()
+        type: Date
     },
     // Detay
     detailsLength:{
@@ -124,6 +123,12 @@ var ShippingReceiptSchema = new mongoose.Schema({
     },
     boxHeader : [boxHeaderSchema],
     eCommerces : [eCommerceSchema]
+});
+
+ShippingReceiptSchema.pre('save', function (next) {
+    var shippingReceipt = this;
+    shippingReceipt.createdAt = Date.now()
+    next();
 });
 
 var ShippingReceipt = mongoose.model('ShippingReceipt', ShippingReceiptSchema);

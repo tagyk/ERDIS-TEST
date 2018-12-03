@@ -3,6 +3,7 @@ const fs = require("fs");
 var { mongoose } = require('./../server/db/mongoose');
 var { ShippingReceipt } = require('./../server/models/ShippingReceipt');
 var { ShippingReceiptStatus } = require('./../server/models/ShippingReceiptStatus');
+var { ErrorLog } = require('./../server/models/ErrorLog');
 var { myPool } = require('./myPool');
 
 
@@ -21,11 +22,11 @@ async function getEnt009(_ENT009) {
         }).save().then((temp) => {
             documentNum = temp.documentNum;
         });
-        await getEnt075(documentNum);
+        getEnt075(documentNum);
     }
 
     catch (err) {
-        console.log(err);
+        ErrorLog.AddLogData(err," ","Shipping Receipt getEnt009()");
     }
 };
 
@@ -80,11 +81,11 @@ async function getEnt075(_documentNum) {
                 status: "Hazır",
                 location: "Depo"
             }).save();
-            await getEnt076({ docId: vShippingReceipt._id, boxNo: ENT0075.BoxBarcode, subId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id });
+            getEnt076({ docId: vShippingReceipt._id, boxNo: ENT0075.BoxBarcode, subId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id });
         }
     }
     catch (err) {
-        console.log(err);
+        ErrorLog.AddLogData(err," ","Shipping Receipt getEnt075()");
     }
 };
 
@@ -108,7 +109,7 @@ async function getEnt076(_doc) {
 
         }
     } catch (err) {
-        console.log(err);
+        ErrorLog.AddLogData(err," ","Shipping Receipt getEnt076()");
     }
 
 };
@@ -121,17 +122,16 @@ sql.on('error', err => {
     try {
         let pool = await myPool.newPool();
         let result = await pool.request()
-            .input('offset', sql.Int, 0)
+            .input('offset', sql.Int, 1)
             .execute('dbo.getDocument')
         //.output('output_parameter', sql.VarChar(50))
         for (var i = 0, len = result.recordset.length; i < len; i++) {
             var ENT009 = result.recordset[i];
-            await getEnt009(ENT009);
+            getEnt009(ENT009);
             //await getEnt009(result.recordset[i].DocNum, result.recordset[i].DetailsCount);
         }
     } catch (err) {
-        // ... error checks
-        console.log(err);
+        ErrorLog.AddLogData(err," ","Shipping Receipt dbo.getDocument");
     }
 })().then(() => {
     console.log("done");
