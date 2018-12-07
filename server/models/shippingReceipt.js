@@ -121,6 +121,10 @@ var ShippingReceiptSchema = new mongoose.Schema({
     detailsLength:{
         type: Number
     },
+    // Varış Ülkesi
+    locationToCountry:{
+        type: String
+    },
     boxHeader : [boxHeaderSchema],
     eCommerces : [eCommerceSchema]
 });
