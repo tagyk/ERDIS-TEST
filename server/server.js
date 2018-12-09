@@ -92,10 +92,6 @@ app.patch('/shippingReceipt/updateLocation/:boxId', authenticate, (req, res) => 
 
 
 
-
-
-
-
 // POST /users
 app.post('/users', (req, res) => {
     var body = _.pick(req.body, ['email', 'password']);

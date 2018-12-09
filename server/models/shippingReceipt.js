@@ -115,15 +115,24 @@ var ShippingReceiptSchema = new mongoose.Schema({
         type: String
     },
     createdAt: {
-        type: Date,
-        default: Date.now()
+        type: Date
     },
     // Detay
     detailsLength:{
         type: Number
     },
+    // Varış Ülkesi
+    locationToCountry:{
+        type: String
+    },
     boxHeader : [boxHeaderSchema],
     eCommerces : [eCommerceSchema]
+});
+
+ShippingReceiptSchema.pre('save', function (next) {
+    var shippingReceipt = this;
+    shippingReceipt.createdAt = Date.now()
+    next();
 });
 
 var ShippingReceipt = mongoose.model('ShippingReceipt', ShippingReceiptSchema);
