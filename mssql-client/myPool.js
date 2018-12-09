@@ -7,8 +7,8 @@ const config = {
     password: "465666",
     database: 'AXATAWM_CL',
     connectionString: "Driver={SQL Server Native Client 11.0};Server=#{server}\\sql;Database=#{database};Uid=#{user};Pwd=#{password};",
-    PoolTimeout: 22000,
-    requestTimeout: 100000,
+    PoolTimeout: 199999, //3.3 min
+    requestTimeout: 2999999, //50 min
     options: {
         trustedConnection: true,
         encrypt: false
