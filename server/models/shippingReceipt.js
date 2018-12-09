@@ -4,56 +4,56 @@ const validator = require('validator');
 
 
 var eCommerceSchema = new mongoose.Schema({
-    name:{
+    name: {
         type: String
     },
-    surname:{
+    surname: {
         type: String
     },
-    phone:{
+    phone: {
         type: String
     },
-    county:{
+    county: {
         type: String
     },
-    state:{
+    state: {
         type: String
     }
-    
+
 });
 var boxDetailSchema = new mongoose.Schema({
-    
-    barcode:{
+
+    barcode: {
         type: String
     },
-    qty:{
+    qty: {
         type: Number
     },
-    isAssorment:{
+    isAssorment: {
         type: Boolean
     },
-    assormentBarcode:{
+    assormentBarcode: {
         type: String
     }
 });
 
 var boxHeaderSchema = new mongoose.Schema({
-    boxBarcode:{
+    boxBarcode: {
         type: String
-    },   
-    totalQty:{
+    },
+    totalQty: {
         type: Number
     },
-    volume:{
+    volume: {
         type: Number
     },
-    volumetricWeight:{
+    volumetricWeight: {
         type: Number
     },
-    weight:{
+    weight: {
         type: Number
     },
-    boxDetails : [boxDetailSchema]
+    boxDetails: [boxDetailSchema]
 });
 
 
@@ -70,63 +70,67 @@ var ShippingReceiptSchema = new mongoose.Schema({
     },
     documentType: {
         type: String
-        
+
     },
     documentStatus: {
         type: Boolean
     },
-    documentNum:{
+    documentNum: {
         type: String,
-        unique : true, 
-        required : true
+        unique: true,
+        required: true
     },
-    documentDate:{
+    documentDate: {
         type: String
     },
-    locationTo:{
+    locationTo: {
         type: String
     },
-    locationFrom:{
+    locationFrom: {
         type: String
     },
-    locationToAccount:{
+    locationToAccount: {
         type: String
     },
-    locationFromAccount:{
+    locationFromAccount: {
         type: String
     },
-    shippingCompany:{
+    shippingCompany: {
         type: String
     },
     //Toplam Ürün Adedi
-    totalQTY:{
+    totalQTY: {
         type: Number
     },
     //Toplam Koli Sayısı
-    numberOfBox:{ 
+    numberOfBox: {
         type: Number
     },
     //Çıkış Noktası Adres
-    locationFromAddress:{
+    locationFromAddress: {
         type: String
     },
     //Varış Noktası Adres
-    locationToAddress:{
+    locationToAddress: {
         type: String
     },
     createdAt: {
         type: Date
     },
     // Detay
-    detailsLength:{
+    detailsLength: {
         type: Number
     },
     // Varış Ülkesi
-    locationToCountry:{
+    locationToCountry: {
         type: String
     },
-    boxHeader : [boxHeaderSchema],
-    eCommerces : [eCommerceSchema]
+    isReady: {
+        type: Boolean,
+        default: false
+    },
+    boxHeader: [boxHeaderSchema],
+    eCommerces: [eCommerceSchema]
 });
 
 ShippingReceiptSchema.pre('save', function (next) {
@@ -134,8 +138,16 @@ ShippingReceiptSchema.pre('save', function (next) {
     shippingReceipt.createdAt = Date.now()
     next();
 });
+ShippingReceiptSchema.post('save', function (doc) {
+    var shippingReceipt = this;
+    if(shippingReceipt.totalQty + shippingReceipt.boxHeader.length == shippingReceipt._id){
+        shippingReceipt.isReady = true;
+        shippingReceipt.save();
+    }
+
+});
 
 var ShippingReceipt = mongoose.model('ShippingReceipt', ShippingReceiptSchema);
 
-module.exports = {ShippingReceipt}
+module.exports = { ShippingReceipt }
 
