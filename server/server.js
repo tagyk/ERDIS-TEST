@@ -28,7 +28,7 @@ app.post('/shippingReceipt', (req, res) => {
 
 // GET /shippingReceipt
 app.get('/shippingReceipt', authenticate, (req, res) => {
-    ShippingReceipt.find().then((shippingReceipts) => {
+    ShippingReceipt.find().sort({_id : -1 }).select({ "boxHeader.boxDetails.isAssorment": 0 , "_id": 0}).limit(10).then((shippingReceipts) => {
         res.send({ shippingReceipts });
     }, (e) => {
         res.status(400).send(e);

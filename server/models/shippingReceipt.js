@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const _ = require('lodash');
+
 
 
 
@@ -133,6 +135,13 @@ var ShippingReceiptSchema = new mongoose.Schema({
     eCommerces: [eCommerceSchema]
 });
 
+ShippingReceiptSchema.methods.toJSON = function () {
+    var shippingReceipt = this;
+    var shippingReceiptObject = shippingReceipt.toObject();
+
+    return _.pick(shippingReceiptObject, ['_id', 'transactionType','documentNum','documentDate','locationTo','locationToAddress','locationFrom','locationFromAddress','boxHeader']);
+};
+
 ShippingReceiptSchema.pre('save', function (next) {
     var shippingReceipt = this;
     shippingReceipt.createdAt = Date.now()
@@ -140,7 +149,7 @@ ShippingReceiptSchema.pre('save', function (next) {
 });
 ShippingReceiptSchema.post('save', function (doc) {
     var shippingReceipt = this;
-    if(shippingReceipt.totalQty + shippingReceipt.boxHeader.length == shippingReceipt._id){
+    if (shippingReceipt.detailsLength + shippingReceipt.boxHeader.length == shippingReceipt._id) {
         shippingReceipt.isReady = true;
         shippingReceipt.save();
     }
