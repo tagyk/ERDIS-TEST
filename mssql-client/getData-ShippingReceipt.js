@@ -98,7 +98,7 @@ sql.on('error', err => {
     try {
         let pool = await myPool.newPool();
         let result = await pool.request()
-            .input('offset', sql.Int, 1)
+            .input('offset', sql.Int, 2)
             .execute('dbo.getDocument')
         //.output('output_parameter', sql.VarChar(50))
         for (var i = 0, len = result.recordset.length; i < len; i++) {

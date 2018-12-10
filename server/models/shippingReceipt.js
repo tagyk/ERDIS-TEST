@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const _ = require('lodash');
+var { ErrorLog } = require('./ErrorLog');
 
 
 
@@ -139,7 +140,7 @@ ShippingReceiptSchema.methods.toJSON = function () {
     var shippingReceipt = this;
     var shippingReceiptObject = shippingReceipt.toObject();
 
-    return _.pick(shippingReceiptObject, ['_id', 'transactionType','documentNum','documentDate','locationTo','locationToAddress','locationFrom','locationFromAddress','boxHeader']);
+    return _.pick(shippingReceiptObject, ['_id', 'transactionType', 'documentNum', 'documentDate', 'locationTo', 'locationToAddress', 'locationFrom', 'locationFromAddress', 'boxHeader']);
 };
 
 ShippingReceiptSchema.pre('save', function (next) {
@@ -147,11 +148,12 @@ ShippingReceiptSchema.pre('save', function (next) {
     shippingReceipt.createdAt = Date.now()
     next();
 });
-ShippingReceiptSchema.post('save', function (doc) {
+boxDetailSchema.post('save', function (doc) {
     var shippingReceipt = this;
-    if (shippingReceipt.detailsLength + shippingReceipt.boxHeader.length == shippingReceipt._id) {
-        shippingReceipt.isReady = true;
-        shippingReceipt.save();
+    if (shippingReceipt.__parent.__parent.detailsLength + shippingReceipt.__parent.__parent.boxHeader.length == shippingReceipt.__parent.__parent.__v) {
+        ShippingReceipt.findByIdAndUpdate(this.__parent.__parent.id, { $set: { isReady: 'true' } }, { new: true }, function (err, result) {
+            if (err) ErrorLog.AddLogData(err, this.__parent.__parent.id, "shippingReceipt id  boxDetailSchema.post(save)");
+        });
     }
 
 });
