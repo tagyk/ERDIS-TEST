@@ -13,14 +13,16 @@ async function getEnt009(_ENT009) {
         await new ShippingReceipt({
             documentNum: _ENT009.DocNum,
             documentDate: _ENT009.DocDate,
-            detailsLength: _ENT009.DetailsCount,
+            numberOfBarcode: _ENT009.NumberOfBarcode,
+            numberOfBox: _ENT009.NumberOfBox,
             locationFrom: _ENT009.LocationFrom,
             locationFromAccount: _ENT009.LocationFromAccount,
             locationTo: _ENT009.LocationTo,
             locationToAccount: _ENT009.LocationToAccount,
             locationToAddress: _ENT009.locationToAddress,
             locationToCountry: _ENT009.locationToCountry,
-            transactionType: _ENT009.TransactionType
+            transactionType: _ENT009.TransactionType,
+
         }).save().then((temp) => {
             documentNum = temp.documentNum;
         });
@@ -28,7 +30,7 @@ async function getEnt009(_ENT009) {
     }
 
     catch (err) {
-        ErrorLog.AddLogData(err,_ENT009.DocNum,"Shipping Receipt getEnt009()");
+        ErrorLog.AddLogData(err, _ENT009.DocNum, "Shipping Receipt getEnt009()");
     }
 };
 
@@ -43,25 +45,36 @@ async function getEnt075(_documentNum) {
         for (var i = 0, len = result.recordset.length; i < len; i++) {
             var ENT0075 = result.recordset[i];
             let vShippingReceipt = await ShippingReceipt.findOne({ documentNum: _documentNum });
-            await vShippingReceipt.boxHeader.push({ 
+            await vShippingReceipt.boxHeader.push({
                 boxBarcode: ENT0075.BoxBarcode,
                 volume: ENT0075.Volume,
                 volumetricWeight: ENT0075.VolumetricWeight,
                 weight: ENT0075.Weight
             });
             await vShippingReceipt.save();
-            await new ShippingReceiptStatus({
+            new ShippingReceiptStatus({
                 documentNum: vShippingReceipt.documentNum,
                 refBoxId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id,
                 boxBarcode: ENT0075.BoxBarcode,
                 status: "Hazır",
                 location: "Depo"
             }).save();
-            getEnt076({ documentNum:_documentNum, docId: vShippingReceipt._id, boxNo: ENT0075.BoxBarcode, subId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id });
+            getEnt076({ documentNum: _documentNum, docId: vShippingReceipt._id, boxNo: ENT0075.BoxBarcode, subId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id })
+                .then(() => {
+                    ShippingReceipt.findOne({ documentNum: _documentNum }, function (err, sr) {
+                        if (sr.numberOfBox + sr.numberOfBarcode == sr.__v && sr.isReady == false) {
+                            ShippingReceipt.findOneAndUpdate({ documentNum: _documentNum }, { $set: { isReady: 'true' } }, { new: true }, function (err, result) {
+                                if (err) ErrorLog.AddLogData(err, sr.documentNum, "getEnt076 then");
+                            });
+                        }
+                    });
+                }).catch((e) => {
+                    console.log(e);
+                });
         }
     }
     catch (err) {
-        ErrorLog.AddLogData(err,_documentNum,"Shipping Receipt getEnt075()");
+        ErrorLog.AddLogData(err, _documentNum, "Shipping Receipt getEnt075()");
     }
 };
 
@@ -85,7 +98,7 @@ async function getEnt076(_doc) {
 
         }
     } catch (err) {
-        ErrorLog.AddLogData(err,_doc.documentNum,"Shipping Receipt getEnt076()");
+        ErrorLog.AddLogData(err, _doc.documentNum, "Shipping Receipt getEnt076()");
     }
 
 };
@@ -107,7 +120,7 @@ sql.on('error', err => {
             //await getEnt009(result.recordset[i].DocNum, result.recordset[i].DetailsCount);
         }
     } catch (err) {
-        ErrorLog.AddLogData(err," ","Shipping Receipt dbo.getDocument");
+        ErrorLog.AddLogData(err, " ", "Shipping Receipt dbo.getDocument");
     }
 })().then(() => {
     console.log("done");

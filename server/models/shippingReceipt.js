@@ -109,6 +109,10 @@ var ShippingReceiptSchema = new mongoose.Schema({
     numberOfBox: {
         type: Number
     },
+    //Toplam Barkod Çeşidi
+    numberOfBarcode: {
+        type: Number
+    },
     //Çıkış Noktası Adres
     locationFromAddress: {
         type: String
@@ -120,10 +124,7 @@ var ShippingReceiptSchema = new mongoose.Schema({
     createdAt: {
         type: Date
     },
-    // Detay
-    detailsLength: {
-        type: Number
-    },
+
     // Varış Ülkesi
     locationToCountry: {
         type: String
@@ -148,15 +149,14 @@ ShippingReceiptSchema.pre('save', function (next) {
     shippingReceipt.createdAt = Date.now()
     next();
 });
-boxDetailSchema.post('save', function (doc) {
-    var shippingReceipt = this;
-    if (shippingReceipt.__parent.__parent.detailsLength + shippingReceipt.__parent.__parent.boxHeader.length == shippingReceipt.__parent.__parent.__v) {
-        ShippingReceipt.findByIdAndUpdate(this.__parent.__parent.id, { $set: { isReady: 'true' } }, { new: true }, function (err, result) {
-            if (err) ErrorLog.AddLogData(err, this.__parent.__parent.id, "shippingReceipt id  boxDetailSchema.post(save)");
-        });
-    }
-
-});
+// boxDetailSchema.post('save', function(doc, next){
+//     if (this.__parent.__parent.numberOfBarcode + this.__parent.__parent.numberOfBox  == this.__parent.__parent.__v) {
+//         ShippingReceipt.findByIdAndUpdate(this.__parent.__parent.id, { $set: { isReady: 'true' } }, { new: true }, function (err, result) {
+//             if (err) ErrorLog.AddLogData(err, this.__parent.__parent.id, "shippingReceipt id  boxDetailSchema.post(save)");
+//         });
+//     }
+//     next();
+// });
 
 var ShippingReceipt = mongoose.model('ShippingReceipt', ShippingReceiptSchema);
 
