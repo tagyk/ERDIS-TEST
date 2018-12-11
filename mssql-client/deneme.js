@@ -3,8 +3,7 @@ var { ShippingReceipt } = require('./../server/models/ShippingReceipt');
 var { mongoose } = require('./../server/db/mongoose');
 
 ShippingReceipt.findOne()
-    .where('totalQTY').gt(5)
-    .sort('totalQTY')
+    .where('numberOfBox').gt(2)
     .select('documentNum')
     .exec(function (err, data) {
         if (err) return handleError(err);
