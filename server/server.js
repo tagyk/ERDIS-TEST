@@ -28,25 +28,42 @@ app.post('/shippingReceipt', (req, res) => {
 
 // GET /shippingReceipt
 app.get('/shippingReceipt', authenticate, (req, res) => {
-    ShippingReceipt.find().then((shippingReceipts) => {
+    ShippingReceipt.find().sort({_id : -1 }).select({ "boxHeader.boxDetails.isAssorment": 0 , "_id": 0}).limit(10).then((shippingReceipts) => {
         res.send({ shippingReceipts });
     }, (e) => {
         res.status(400).send(e);
     });
 });
 
+// GET /shippingReceiptStatus
+app.get('/shippingReceipt/status', authenticate, (req, res) => {
+    ShippingReceiptStatus.find().then((result) => {
+        res.send({ result });
+    }, (e) => {
+        res.status(400).send(e);
+    });
+});
 
+// GET /shippingReceiptStatus documentNum
+app.get('/shippingReceipt/status/:documentNum', authenticate, (req, res) => {
+    var _docNum = req.params.documentNum;
+    ShippingReceiptStatus.find({documentNum : _docNum}).then((result) => {
+        res.send({ result });
+    }, (e) => {
+        res.status(400).send(e);
+    });
+});
+
+// GET /shippingReceiptStatus UpdateStatus
 app.patch('/shippingReceipt/updateStatus/:boxId', authenticate, (req, res) => {
     var _refBoxId = req.params.boxId;
     var body = _.pick(req.body, ['status']);
-
     ShippingReceiptStatus.findOne({ refBoxId: _refBoxId }, function (err, result) {
-
         ShippingReceiptStatus.findByIdAndUpdate(result._id, {
-            $push: { timeline: { prevStatus: result.status, prevUpdateAt: result.updated_at } },
-            $set: { status: body.status ,updated_at: new Date() }
-        }, { new: false }, function (err, doc) {
-            res.send({ doc });
+            $push: { statusTimeline: { prevStatus: result.status, prevUpdateAt: result.statusUpdatedAt } },
+            $set: { status: body.status, statusUpdatedAt: new Date() }
+        }, { new: true }, function (err, doc) {
+            res.send({ status: doc.status, uptDate: doc.statusUpdatedAt });
         }, (e) => {
             res.status(400).send(e);
         });
@@ -55,20 +72,21 @@ app.patch('/shippingReceipt/updateStatus/:boxId', authenticate, (req, res) => {
 
 
 
-
-app.patch('/shippingReceipt/updateLocation/:boxId', (req, res) => {
-
-    var body = _.pick(req.body, ['documentNum', 'boxBarcode', 'location']);
-    ShippingReceiptStatus.updateOne({ refBoxId: _refBoxId }, { $set: { location: body.location } }, { new: true }, function (err, doc) {
-        res.send({ doc });
-    }, (e) => {
-        res.status(400).send(e);
+// GET /shippingReceiptStatus updateLocation
+app.patch('/shippingReceipt/updateLocation/:boxId', authenticate, (req, res) => {
+    var _refBoxId = req.params.boxId;
+    var body = _.pick(req.body, ['location']);
+    ShippingReceiptStatus.findOne({ refBoxId: _refBoxId }, function (err, result) {
+        ShippingReceiptStatus.findByIdAndUpdate(result._id, {
+            $push: { locationTimeline: { prevStatus: result.location, prevUpdateAt: result.locationUpdatedAt } },
+            $set: { location: body.location, locationUpdatedAt: new Date() }
+        }, { new: true }, function (err, doc) {
+            res.send({ location: doc.location, uptDate: doc.locationUpdatedAt });
+        }, (e) => {
+            res.status(400).send(e);
+        });
     });
 });
-
-
-
-
 
 
 

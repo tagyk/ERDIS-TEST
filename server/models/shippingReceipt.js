@@ -1,54 +1,62 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const _ = require('lodash');
+var { ErrorLog } = require('./ErrorLog');
+
 
 
 
 var eCommerceSchema = new mongoose.Schema({
-    name:{
+    name: {
         type: String
     },
-    surname:{
+    surname: {
         type: String
     },
-    phone:{
+    phone: {
         type: String
     },
-    county:{
+    county: {
         type: String
     },
-    state:{
+    state: {
         type: String
     }
-    
+
 });
 var boxDetailSchema = new mongoose.Schema({
-    
-    barcode:{
+
+    barcode: {
         type: String
     },
-    qty:{
+    qty: {
         type: Number
+    },
+    isAssorment: {
+        type: Boolean
+    },
+    assormentBarcode: {
+        type: String
     }
 });
 
 var boxHeaderSchema = new mongoose.Schema({
-    status:{
-        type: Boolean
-    },
-    barcode:{
+    boxBarcode: {
         type: String
     },
-    
-    totalQty:{
+    totalQty: {
         type: Number
     },
-    type:{
-        type: String,
-    },
-    volume:{
+    volume: {
         type: Number
     },
-    boxDetails : [boxDetailSchema]
+    volumetricWeight: {
+        type: Number
+    },
+    weight: {
+        type: Number
+    },
+    boxDetails: [boxDetailSchema]
 });
 
 
@@ -65,55 +73,92 @@ var ShippingReceiptSchema = new mongoose.Schema({
     },
     documentType: {
         type: String
-        
+
     },
     documentStatus: {
         type: Boolean
     },
-    documentNum:{
+    documentNum: {
         type: String,
-        unique : true, 
-        required : true
+        unique: true,
+        required: true
     },
-    documentDate:{
+    documentDate: {
         type: String
     },
-    locationTo:{
+    locationTo: {
         type: String
     },
-    locationFrom:{
+    locationFrom: {
         type: String
     },
-    locationToAccount:{
+    locationToAccount: {
         type: String
     },
-    locationFromAccount:{
+    locationFromAccount: {
         type: String
     },
-    shippingCompany:{
+    shippingCompany: {
         type: String
     },
     //Toplam Ürün Adedi
-    totalQTY:{
+    totalQTY: {
         type: Number
     },
     //Toplam Koli Sayısı
-    numberOfBox:{ 
+    numberOfBox: {
         type: Number
     },
     //Çıkış Noktası Adres
-    locationFromAddress:{
+    locationFromAddress: {
         type: String
     },
     //Varış Noktası Adres
-    locationToAddress:{
+    locationToAddress: {
         type: String
     },
-    boxHeader : [boxHeaderSchema],
-    eCommerces : [eCommerceSchema]
+    createdAt: {
+        type: Date
+    },
+    // Detay
+    detailsLength: {
+        type: Number
+    },
+    // Varış Ülkesi
+    locationToCountry: {
+        type: String
+    },
+    isReady: {
+        type: Boolean,
+        default: false
+    },
+    boxHeader: [boxHeaderSchema],
+    eCommerces: [eCommerceSchema]
+});
+
+ShippingReceiptSchema.methods.toJSON = function () {
+    var shippingReceipt = this;
+    var shippingReceiptObject = shippingReceipt.toObject();
+
+    return _.pick(shippingReceiptObject, ['_id', 'transactionType', 'documentNum', 'documentDate', 'locationTo', 'locationToAddress', 'locationFrom', 'locationFromAddress', 'boxHeader']);
+};
+
+ShippingReceiptSchema.pre('save', function (next) {
+    var shippingReceipt = this;
+    shippingReceipt.createdAt = Date.now()
+    next();
+});
+boxDetailSchema.post('save', function (doc) {
+    var shippingReceipt = this;
+    if (shippingReceipt.__parent.__parent.detailsLength + shippingReceipt.__parent.__parent.boxHeader.length == shippingReceipt.__parent.__parent.__v) {
+        ShippingReceipt.findByIdAndUpdate(this.__parent.__parent.id, { $set: { isReady: 'true' } }, { new: true }, function (err, result) {
+            if (err) ErrorLog.AddLogData(err, this.__parent.__parent.id, "shippingReceipt id  boxDetailSchema.post(save)");
+        });
+    }
+
 });
 
 var ShippingReceipt = mongoose.model('ShippingReceipt', ShippingReceiptSchema);
 
-module.exports = {ShippingReceipt}
+module.exports = { ShippingReceipt }
 
