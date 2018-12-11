@@ -21,7 +21,6 @@ https://thecodebarbarian.com/node.js-task-scheduling-with-agenda-and-mongodb
 //         console.log(data);
 //     });
 
-
 // (async function () {
 //     let a = await ShippingReceipt.findOne({documentNum: "30678100"});
 //     console.log(a);
