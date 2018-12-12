@@ -65,5 +65,4 @@ ShippingReceipt.find({}).limit(10).
     
 
     /* generate an XLSX file */
-   
     ShippingReceipt.find({}).limit(10)

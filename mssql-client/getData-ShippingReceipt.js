@@ -4,7 +4,8 @@ var { mongoose } = require('./../server/db/mongoose');
 var { ShippingReceipt } = require('./../server/models/ShippingReceipt');
 var { ShippingReceiptStatus } = require('./../server/models/ShippingReceiptStatus');
 var { ErrorLog } = require('./../server/models/ErrorLog');
-var { myPool } = require('./myPool');
+var mssqlClient = require('./mssqlClient');
+
 
 
 async function getEnt009(_ENT009) {
@@ -38,10 +39,12 @@ async function getEnt009(_ENT009) {
 
 async function getEnt075(_documentNum) {
     try {
-        let pool = await myPool.newPool();
+        let con = new mssqlClient("Depo");
+        let pool = await con.connect();
         let result = await pool.request()
             .input('documentNum', sql.NVarChar, _documentNum)
             .execute('dbo.getBoxHeader')
+        await con.disconnect();
         for (var i = 0, len = result.recordset.length; i < len; i++) {
             var ENT0075 = result.recordset[i];
             let vShippingReceipt = await ShippingReceipt.findOne({ documentNum: _documentNum });
@@ -80,10 +83,12 @@ async function getEnt075(_documentNum) {
 
 async function getEnt076(_doc) {
     try {
-        let pool = await myPool.newPool();
+        let con = new mssqlClient("Depo");
+        let pool = await con.connect();
         let result = await pool.request()
             .input('boxBarcode', sql.NVarChar, _doc.boxNo)
             .execute('dbo.getBoxDetails')
+        await con.disconnect();    
         for (var i = 0, len = result.recordset.length; i < len; i++) {
             var ENT0076 = result.recordset[i];
             var _ShippingReceipt = await ShippingReceipt.findById(_doc.docId);
@@ -109,10 +114,12 @@ sql.on('error', err => {
 
 (async function () {
     try {
-        let pool = await myPool.newPool();
+        let con = new mssqlClient("Depo");
+        let pool = await con.connect();
         let result = await pool.request()
             .input('offset', sql.Int, 2)
             .execute('dbo.getDocument')
+        await con.disconnect();
         //.output('output_parameter', sql.VarChar(50))
         for (var i = 0, len = result.recordset.length; i < len; i++) {
             var ENT009 = result.recordset[i];

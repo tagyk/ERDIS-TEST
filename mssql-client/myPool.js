@@ -1,6 +1,8 @@
 var mssql = require('mssql');
 var myPool = {}
+
 myPool.connected = false;
+
 const config = {
     server: "erktrdepos03",
     user: "ax",
@@ -19,12 +21,18 @@ const config = {
         idleTimeoutMillis: 30000
     }
 };
-const pool1 = new mssql.ConnectionPool(config).connect();
+const pool1 ;
 
 
 myPool.connect = async function () {
 
-    return await pool1;
+    pool1 = await new mssql.ConnectionPool(config).connect();
+};
+
+myPool.close =  function () {
+    pool1.close().then(() => {
+        myPool.connected = false;
+    });
 };
 
 
