@@ -20,18 +20,19 @@ try{
         var objectValue = JSON.parse(jsonized);
         console.log(objectValue['offset']);
         
-        /*if (objectValue['offset'] === objectValue['highWaterOffset']-1) {
+        if (objectValue['offset'] === objectValue['highWaterOffset']-1) {
             consumer.commit(function (err, data) {
                 console.log(objectValue['offset'] + ' commit edildi.');
                 consumer.close(true, function (error) {
                     if (error) {
                         console.log("Consuming closed with error", error);
                     } else {
-                        console.log("Consuming closed");
+                        let err1 = "ax";
+                        console.log("Consuming closed", err1);
                     }
                 });                
             });
-        }*/
+        }
     
         consumer.on('error', function (err) {
             console.log('error', err);

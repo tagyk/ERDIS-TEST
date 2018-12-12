@@ -1,25 +1,28 @@
 
 var { ShippingReceipt } = require('./../server/models/ShippingReceipt');
 var { mongoose } = require('./../server/db/mongoose');
+var { kafka} = require('./../kafka/kafkaClient');
 
-ShippingReceipt.findOne()
-    .where('numberOfBox').gt(2)
-    .select('documentNum')
-    .exec(function (err, data) {
-        if (err) return handleError(err);
-        console.log(data);
-    });
-    ShippingReceipt.find()
-    .where('totalQTY').gt(5)
-    .sort('totalQTY')
-    .select('documentNum totalQTY')
-    .exec(function (err, data) {
-        if (err) return handleError(err);
-        console.log(data);
-    });
+//kafka.messageProducer(kafka.createClient(),'This is a client message', 'ERDISQUEUE','0');
+
+kafka.messageConsumer(kafka.createClient(),'ERDISQUEUE',0,false);
+
 
 
 // (async function () {
 //     let a = await ShippingReceipt.findOne({documentNum: "30678100"});
 //     console.log(a);
 // })()
+
+
+/*
+
+ for (var i = 0, len = result.recordset.length; i < len; i++) {
+            var ENT0075 = result.recordset[i];
+            let vShippingReceipt = await ShippingReceipt.findOne({ documentNum: _documentNum });
+            await vShippingReceipt.boxHeader.push({ 
+                boxBarcode: ENT0075.BoxBarcode,
+                volume: ENT0075.Volume,
+                volumetricWeight: ENT0075.VolumetricWeight,
+                weight: ENT0075.Weight
+            });*/
