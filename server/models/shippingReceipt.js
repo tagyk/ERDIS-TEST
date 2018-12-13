@@ -69,7 +69,7 @@ var boxHeaderSchema = new mongoose.Schema({
 var ShippingReceiptSchema = new mongoose.Schema({
     transactionType: {
         type: String,
-        enum: ['Depo->Magaza', 'Depo->E-ticaret','Depo->Magaza'],
+        enum: ['Depo->Magaza', 'Depo->E-ticaret','Depo->Depo'],
     },
     MovementType: {
         type: String,
