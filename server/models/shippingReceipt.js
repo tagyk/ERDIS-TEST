@@ -59,7 +59,11 @@ var boxHeaderSchema = new mongoose.Schema({
     boxDetails: [boxDetailSchema]
 });
 
-
+const TransactionTypes = Object.freeze({
+    DM: 'Depo->Magaza',
+    DE: 'Depo->E-ticaret',
+    DD: 'Depo->Depo',
+});
 
 
 
@@ -69,7 +73,7 @@ var boxHeaderSchema = new mongoose.Schema({
 var ShippingReceiptSchema = new mongoose.Schema({
     transactionType: {
         type: String,
-        enum: ['Depo->Magaza', 'Depo->E-ticaret','Depo->Depo'],
+        enum: Object.values(TransactionTypes),
     },
     MovementType: {
         type: String,
@@ -138,6 +142,10 @@ var ShippingReceiptSchema = new mongoose.Schema({
     },
     boxHeader: [boxHeaderSchema],
     eCommerces: [eCommerceSchema]
+});
+
+Object.assign(ShippingReceiptSchema.statics, {
+    TransactionTypes,
 });
 
 ShippingReceiptSchema.methods.toJSON = function () {

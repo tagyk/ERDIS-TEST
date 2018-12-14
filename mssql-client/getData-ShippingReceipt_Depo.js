@@ -1,9 +1,9 @@
 const sql = require('mssql');
 const fs = require("fs");
-var { mongoose } = require('./../server/db/mongoose');
-var { ShippingReceipt } = require('./../server/models/ShippingReceipt');
-var { ShippingReceiptStatus } = require('./../server/models/ShippingReceiptStatus');
-var { ErrorLog } = require('./../server/models/ErrorLog');
+var { mongoose } = require('../server/db/mongoose');
+var { ShippingReceipt } = require('../server/models/ShippingReceipt');
+var { ShippingReceiptStatus } = require('../server/models/ShippingReceiptStatus');
+var { ErrorLog } = require('../server/models/ErrorLog');
 var mssqlClient = require('./mssqlClient');
 
 
@@ -22,7 +22,7 @@ async function getEnt009(_ENT009) {
             locationToAccount: _ENT009.LocationToAccount,
             locationToAddress: _ENT009.locationToAddress,
             locationToCountry: _ENT009.locationToCountry,
-            transactionType: ShippingReceipt.TransactionTypes.DD,
+            transactionType: _ENT009.TransactionType,
 
         }).save().then((temp) => {
             documentNum = temp.documentNum;
