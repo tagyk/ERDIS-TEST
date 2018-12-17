@@ -76,7 +76,7 @@ var ShippingReceiptSchema = new mongoose.Schema({
         type: String,
         enum: Object.values(TransactionTypes),
     },
-    MovementType: {
+    movementType: {
         type: String,
     },
     documentType: {

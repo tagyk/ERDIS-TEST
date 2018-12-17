@@ -25,6 +25,7 @@ async function getEnt009(_ENT009) {
             locationToAddress: _ENT009.locationToAddress,
             locationToCountry: _ENT009.locationToCountry,
             transactionType: ShippingReceipt.TransactionTypes.DD,
+            refAxCode: _ENT009.refAxCode
 
         }).save().then((temp) => {
             documentNum = temp.documentNum;
