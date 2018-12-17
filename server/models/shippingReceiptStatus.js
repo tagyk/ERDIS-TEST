@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 
+
 var timelineSchema = new mongoose.Schema({
 
     prevStatus: {
@@ -30,8 +31,7 @@ var ShippingReceiptStatusSchema = new mongoose.Schema({
         type: String
     },
     createdAt: {
-        type: Date,
-        default: Date.now()
+        type: Date
     },
     statusUpdatedAt: {
         type: Date

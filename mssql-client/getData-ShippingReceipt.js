@@ -5,6 +5,8 @@ var { ShippingReceipt } = require('./../server/models/ShippingReceipt');
 var { ShippingReceiptStatus } = require('./../server/models/ShippingReceiptStatus');
 var { ErrorLog } = require('./../server/models/ErrorLog');
 var mssqlClient = require('./mssqlClient');
+var moment = require('moment');
+
 
 
 
@@ -60,7 +62,8 @@ async function getEnt075(_documentNum) {
                 refBoxId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id,
                 boxBarcode: ENT0075.BoxBarcode,
                 status: "Hazır",
-                location: "Depo"
+                location: "Depo",
+                createdAt: moment(Date.now()).format('DD-MM-YYYY')
             }).save();
             getEnt076({ documentNum: _documentNum, docId: vShippingReceipt._id, boxNo: ENT0075.BoxBarcode, subId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id })
                 .then(() => {

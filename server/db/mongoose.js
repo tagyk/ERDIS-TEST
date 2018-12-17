@@ -1,6 +1,6 @@
 
 var mongoose = require('mongoose');
-const toJson = require('@meanie/mongoose-to-json');
+
 
 //mongoose.plugin(toJson);
 mongoose.set('useFindAndModify', false);

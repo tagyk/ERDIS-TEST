@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const _ = require('lodash');
 var { ErrorLog } = require('./ErrorLog');
+var moment = require('moment');
 
 
 
@@ -140,6 +141,11 @@ var ShippingReceiptSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    // AX'da oluşan kayıtın refrans id si
+    refAxCode: {
+        type: String
+    },
+
     boxHeader: [boxHeaderSchema],
     eCommerces: [eCommerceSchema]
 });
@@ -157,7 +163,7 @@ ShippingReceiptSchema.methods.toJSON = function () {
 
 ShippingReceiptSchema.pre('save', function (next) {
     var shippingReceipt = this;
-    shippingReceipt.createdAt = Date.now()
+    shippingReceipt.createdAt = moment(Date.now()).format('DD-MM-YYYY');
     next();
 });
 // boxDetailSchema.post('save', function(doc, next){

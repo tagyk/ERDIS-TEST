@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const _ = require('lodash');
+var moment = require('moment');
+
 var ErrorLogSchema = new mongoose.Schema({
 
     errorName: {
@@ -28,7 +30,7 @@ var ErrorLogSchema = new mongoose.Schema({
 });
 ErrorLogSchema.pre('save', function (next) {
     var errorLog = this;
-    errorLog.createdAt = Date.now()
+    errorLog.createdAt = moment(Date.now()).format('DD-MM-YYYY');
     next();
 });
 
