@@ -57,6 +57,10 @@ var boxHeaderSchema = new mongoose.Schema({
     weight: {
         type: Number
     },
+    //Toplam Barkod Çeşidi
+    numberOfBarcode: {
+        type: Number
+    },
     boxDetails: [boxDetailSchema]
 });
 

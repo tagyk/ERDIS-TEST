@@ -10,67 +10,84 @@ var moment = require('moment');
 
 
 
-async function getEnt009(_ENT009) {
+async function getDispatchHeader(_dispatchNum) {
     try {
         let documentNum;
-        await new ShippingReceipt({
-            documentNum: _ENT009.DocNum,
-            documentDate: _ENT009.DocDate,
-            numberOfBarcode: _ENT009.NumberOfBarcode,
-            numberOfBox: _ENT009.NumberOfBox,
-            locationFrom: _ENT009.LocationFrom,
-            locationFromAccount: _ENT009.LocationFromAccount,
-            locationTo: _ENT009.LocationTo,
-            locationToAccount: _ENT009.LocationToAccount,
-            locationToAddress: _ENT009.locationToAddress,
-            locationToCountry: _ENT009.locationToCountry,
-            transactionType: ShippingReceipt.TransactionTypes.DD,
-            refAxCode: _ENT009.refAxCode
-
-        }).save().then((temp) => {
-            documentNum = temp.documentNum;
-        });
-        getEnt075(documentNum);
+        let con = new mssqlClient("MidaxSender");
+        let pool = await con.connect();
+        let result = await pool.request()
+            .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
+            .input('DispatchNum', sql.NVarChar, _dispatchNum)
+            .execute('ERDIS.GetDispatchHeader')
+        await con.disconnect();
+        for (var i = 0, len = result.recordset.length; i < len; i++) {
+            var dispatchHeader = result.recordset[i];
+            await new ShippingReceipt({
+                transactionType: ShippingReceipt.TransactionTypes.DD,
+                movementType: dispatchHeader.movementType,
+                documentType: '',
+                documentStatus:dispatchHeader.documentStatus,
+                documentNum: dispatchHeader.documentNum,
+                documentDate: dispatchHeader.documentDate,
+                locationTo: dispatchHeader.locationTo,
+                locationFrom: dispatchHeader.locationFrom,
+                locationToAccount: dispatchHeader.locationToAccount,
+                locationFromAccount: dispatchHeader.locationFromAccount,
+                shippingCompany: 'EKOL',
+                totalQTY: dispatchHeader.totalQTY,
+                numberOfBox: dispatchHeader.numberOfBox,
+                numberOfBarcode: dispatchHeader.numberOfBarcode,
+                locationFromAddress: '',
+                locationToAddress: dispatchHeader.locationToAddress,
+                locationToCountry: dispatchHeader.locationToCountry,
+                refAxCode: dispatchHeader.refAxCode
+            }).save().then((temp) => {
+                documentNum = temp.documentNum;
+            });
+            getBoxHeader(documentNum);
+        }
     }
-
     catch (err) {
-        ErrorLog.AddLogData(err, _ENT009.DocNum, "Shipping Receipt getEnt009()");
+        ErrorLog.AddLogData(err, _dispatchNum, "ShippingReceipt getDispatchHeader()");
     }
 };
 
 
 
-async function getEnt075(_documentNum) {
+async function getBoxHeader(_dispatchNum) {
     try {
         let con = new mssqlClient("Depo");
         let pool = await con.connect();
         let result = await pool.request()
-            .input('documentNum', sql.NVarChar, _documentNum)
-            .execute('dbo.getBoxHeader')
+        .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
+        .input('DispatchNum', sql.NVarChar, _dispatchNum)
+            .execute('ERDIS.GetBoxHeader')
         await con.disconnect();
         for (var i = 0, len = result.recordset.length; i < len; i++) {
-            var ENT0075 = result.recordset[i];
-            let vShippingReceipt = await ShippingReceipt.findOne({ documentNum: _documentNum });
+            var boxHeader = result.recordset[i];
+            let vShippingReceipt = await ShippingReceipt.findOne({ documentNum: _dispatchNum });
             await vShippingReceipt.boxHeader.push({
-                boxBarcode: ENT0075.BoxBarcode,
-                volume: ENT0075.Volume,
-                volumetricWeight: ENT0075.VolumetricWeight,
-                weight: ENT0075.Weight
+                boxBarcode: boxHeader.boxBarcode,
+                totalQty: boxHeader.totalQty,
+                volume: boxHeader.volume,
+                volumetricWeight: boxHeader.volumetricWeight,
+                weight: boxHeader.weight,
+                numberOfBarcode:boxHeader.numberOfBarcode
             });
             await vShippingReceipt.save();
             new ShippingReceiptStatus({
                 documentNum: vShippingReceipt.documentNum,
                 refBoxId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id,
-                boxBarcode: ENT0075.BoxBarcode,
+                boxBarcode: boxHeader.BoxBarcode,
                 status: "Hazır",
                 location: "Depo",
                 createdAt: moment(Date.now()).format('DD-MM-YYYY')
             }).save();
-            getEnt076({ documentNum: _documentNum, docId: vShippingReceipt._id, boxNo: ENT0075.BoxBarcode, subId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id })
+            getBoxDetails({ documentNum: _dispatchNum, docId: vShippingReceipt._id, boxNo: boxHeader.BoxBarcode, subId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id })
                 .then(() => {
-                    ShippingReceipt.findOne({ documentNum: _documentNum }, function (err, sr) {
+                    ShippingReceipt.findOne({ documentNum: _dispatchNum }, function (err, sr) {
                         if (sr.numberOfBox + sr.numberOfBarcode == sr.__v && sr.isReady == false) {
-                            ShippingReceipt.findOneAndUpdate({ documentNum: _documentNum }, { $set: { isReady: 'true' } }, { new: true }, function (err, result) {
+                            ShippingReceipt.findOneAndUpdate({ documentNum: _dispatchNum }, { $set: { isReady: 'true' } }, { new: true }, function (err, result) {
                                 if (err) ErrorLog.AddLogData(err, sr.documentNum, "getEnt076 then");
                             });
                         }
@@ -81,18 +98,19 @@ async function getEnt075(_documentNum) {
         }
     }
     catch (err) {
-        ErrorLog.AddLogData(err, _documentNum, "Shipping Receipt getEnt075()");
+        ErrorLog.AddLogData(err, _dispatchNum, "Shipping Receipt getBoxHeader()");
     }
 };
 
-async function getEnt076(_doc) {
+async function getBoxDetails(_doc) {
     try {
         let con = new mssqlClient("Depo");
         let pool = await con.connect();
         let result = await pool.request()
+            .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
             .input('boxBarcode', sql.NVarChar, _doc.boxNo)
-            .execute('dbo.getBoxDetails')
-        await con.disconnect();    
+            .execute('ERDIS.GetBoxDetails')
+        await con.disconnect();
         for (var i = 0, len = result.recordset.length; i < len; i++) {
             var ENT0076 = result.recordset[i];
             var _ShippingReceipt = await ShippingReceipt.findById(_doc.docId);
@@ -107,7 +125,7 @@ async function getEnt076(_doc) {
 
         }
     } catch (err) {
-        ErrorLog.AddLogData(err, _doc.documentNum, "Shipping Receipt getEnt076()");
+        ErrorLog.AddLogData(err, _doc.documentNum, "Shipping Receipt getBoxDetails()");
     }
 
 };
@@ -126,12 +144,12 @@ sql.on('error', err => {
         await con.disconnect();
         //.output('output_parameter', sql.VarChar(50))
         for (var i = 0, len = result.recordset.length; i < len; i++) {
-            var ENT009 = result.recordset[i];
-            getEnt009(ENT009);
+            var dispatchNum = result.recordset[i];
+            getDispatchHeader(dispatchNum);
             //await getEnt009(result.recordset[i].DocNum, result.recordset[i].DetailsCount);
         }
     } catch (err) {
-        ErrorLog.AddLogData(err, " ", "Shipping Receipt dbo.getDocument");
+        ErrorLog.AddLogData(err, " ", "ShippingReceipt kafka");
     }
 })().then(() => {
     console.log("done");
