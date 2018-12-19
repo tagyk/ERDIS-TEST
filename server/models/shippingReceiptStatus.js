@@ -39,7 +39,6 @@ var ShippingReceiptStatusSchema = new mongoose.Schema({
     locationUpdatedAt: {
         type: Date
     },
-
     statusTimeline: [timelineSchema],
     
     locationTimeline: [timelineSchema]

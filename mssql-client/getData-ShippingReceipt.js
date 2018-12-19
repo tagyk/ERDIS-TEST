@@ -28,7 +28,7 @@ async function getDispatchHeader(_dispatchNum) {
                 documentType: '',
                 documentStatus:dispatchHeader.documentStatus,
                 documentNum: dispatchHeader.documentNum,
-                documentDate: dispatchHeader.documentDate,
+                documentDate: moment(dispatchHeader.documentDate).format('DD-MM-YYYY'),
                 locationTo: dispatchHeader.locationTo,
                 locationFrom: dispatchHeader.locationFrom,
                 locationToAccount: dispatchHeader.locationToAccount,
@@ -56,7 +56,7 @@ async function getDispatchHeader(_dispatchNum) {
 
 async function getBoxHeader(_dispatchNum) {
     try {
-        let con = new mssqlClient("Depo");
+        let con = new mssqlClient("MidaxSender");
         let pool = await con.connect();
         let result = await pool.request()
         .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
@@ -78,12 +78,12 @@ async function getBoxHeader(_dispatchNum) {
             new ShippingReceiptStatus({
                 documentNum: vShippingReceipt.documentNum,
                 refBoxId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id,
-                boxBarcode: boxHeader.BoxBarcode,
+                boxBarcode: boxHeader.boxBarcode,
                 status: "Hazır",
                 location: "Depo",
-                createdAt: moment(Date.now()).format('DD-MM-YYYY')
+                createdAt: Date.now() //moment(Date.now()).format('DD-MM-YYYY')
             }).save();
-            getBoxDetails({ documentNum: _dispatchNum, docId: vShippingReceipt._id, boxNo: boxHeader.BoxBarcode, subId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id })
+            getBoxDetails({ documentNum: _dispatchNum, docId: vShippingReceipt._id, boxNo: boxHeader.boxBarcode, subId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id })
                 .then(() => {
                     ShippingReceipt.findOne({ documentNum: _dispatchNum }, function (err, sr) {
                         if (sr.numberOfBox + sr.numberOfBarcode == sr.__v && sr.isReady == false) {
@@ -93,7 +93,7 @@ async function getBoxHeader(_dispatchNum) {
                         }
                     });
                 }).catch((e) => {
-                    console.log(e);
+                    ErrorLog.AddLogData(err, _dispatchNum, "ShippingReceiptStatus getBoxHeader()");
                 });
         }
     }
@@ -104,7 +104,7 @@ async function getBoxHeader(_dispatchNum) {
 
 async function getBoxDetails(_doc) {
     try {
-        let con = new mssqlClient("Depo");
+        let con = new mssqlClient("MidaxSender");
         let pool = await con.connect();
         let result = await pool.request()
             .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
@@ -112,14 +112,14 @@ async function getBoxDetails(_doc) {
             .execute('ERDIS.GetBoxDetails')
         await con.disconnect();
         for (var i = 0, len = result.recordset.length; i < len; i++) {
-            var ENT0076 = result.recordset[i];
+            var boxDetail = result.recordset[i];
             var _ShippingReceipt = await ShippingReceipt.findById(_doc.docId);
             var sub = await _ShippingReceipt.boxHeader.id(_doc.subId);
-            if (ENT0076.IsAsorti == 1) {
-                await sub.boxDetails.push({ barcode: ENT0076.Barcode, qty: ENT0076.Qty, isAssorment: ENT0076.IsAsorti, assormentBarcode: ENT0076.AsortiBarcode });
+            if (boxDetail.IsAsorti == 1) {
+                await sub.boxDetails.push({ barcode: boxDetail.barcode, qty: boxDetail.qty, isAssorment: boxDetail.isAsorti, assormentBarcode: boxDetail.asortiBarcode });
             }
             else {
-                await sub.boxDetails.push({ barcode: ENT0076.Barcode, qty: ENT0076.Qty, isAssorment: ENT0076.IsAsorti });
+                await sub.boxDetails.push({ barcode: boxDetail.barcode, qty: boxDetail.qty, isAssorment: boxDetail.isAsorti });
             }
             await _ShippingReceipt.save();
 
@@ -136,18 +136,33 @@ sql.on('error', err => {
 
 (async function () {
     try {
-        let con = new mssqlClient("Depo");
-        let pool = await con.connect();
-        let result = await pool.request()
-            .input('offset', sql.Int, 2)
-            .execute('dbo.getDocument')
-        await con.disconnect();
-        //.output('output_parameter', sql.VarChar(50))
-        for (var i = 0, len = result.recordset.length; i < len; i++) {
-            var dispatchNum = result.recordset[i];
-            getDispatchHeader(dispatchNum);
+        // let con = new mssqlClient("MidaxSender");
+        // let pool = await con.connect();
+        // let result = await pool.request()
+        //    //.input('input_parameter', sql.Int, value)
+        //     .query('select * from dbo.CURRENCY')
+        // await con.disconnect();
+        // for (var i = 0, len = result.recordset.length; i < len; i++) {
+        //     var ENT0076 = result.recordset[i];
+        // }
+
+
+
+
+
+
+        // let con = new mssqlClient("Depo");
+        // let pool = await con.connect();
+        // let result = await pool.request()
+        //     .input('offset', sql.Int, 2)
+        //     .execute('dbo.getDocument')
+        // await con.disconnect();
+        // //.output('output_parameter', sql.VarChar(50))
+        // for (var i = 0, len = result.recordset.length; i < len; i++) {
+        //     var dispatchNum = result.recordset[i];
+            getDispatchHeader('30680306');
             //await getEnt009(result.recordset[i].DocNum, result.recordset[i].DetailsCount);
-        }
+        //}
     } catch (err) {
         ErrorLog.AddLogData(err, " ", "ShippingReceipt kafka");
     }

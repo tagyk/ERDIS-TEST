@@ -21,7 +21,7 @@ const config_Depo = {
     }
 };
 const config_MidaxSender = {
-    server: "servertr192",
+    server: "ERKTRS192",
     user: "ax",
     password: "465666",
     database: 'MidaxSender',
@@ -61,7 +61,7 @@ module.exports =  class MssqlClient {
 
     }
     async connect() {
-        this.pool1= await new sql.ConnectionPool(config_Depo).connect();
+        this.pool1= await new sql.ConnectionPool(this.config).connect();
         return this.pool1;
     }
 

@@ -167,7 +167,7 @@ ShippingReceiptSchema.methods.toJSON = function () {
 
 ShippingReceiptSchema.pre('save', function (next) {
     var shippingReceipt = this;
-    shippingReceipt.createdAt = moment(Date.now()).format('DD-MM-YYYY');
+    shippingReceipt.createdAt = Date.now(); // moment(Date.now()).format('DD-MM-YYYY');
     next();
 });
 // boxDetailSchema.post('save', function(doc, next){
