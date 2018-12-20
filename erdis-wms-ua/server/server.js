@@ -2,8 +2,7 @@ const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
 const { ObjectID } = require('mongodb');
-var { mongooseErdisConf } = require('./db/mongoose-erdis-config');
-var { mongoose } = require('./db/mongoose');
+//var { mongoose } = require('./db/mongoose'); 
 var { User } = require('./models/user');
 var { ShippingReceipt } = require('./models/ShippingReceipt');
 var { authenticate } = require('./middleware/authenticate');
@@ -28,7 +27,8 @@ app.post('/shippingReceipt', (req, res) => {
 
 // GET /shippingReceipt
 app.get('/shippingReceipt', authenticate, (req, res) => {
-    ShippingReceipt.find().sort({_id : -1 }).select({ "boxHeader.boxDetails.isAssorment": 0 , "_id": 0}).limit(10).then((shippingReceipts) => {
+    // ShippingReceipt.find().sort({_id : -1 }).select({ "boxHeader.boxDetails.isAssorment": 0 , "_id": 0}).limit(10).then((shippingReceipts) => {
+    ShippingReceipt.find().then((shippingReceipts) => {
         res.send({ shippingReceipts });
     }, (e) => {
         res.status(400).send(e);
@@ -135,8 +135,8 @@ app.delete('/users/me/token', authenticate, (req, res) => {
 
 
 
-app.listen(3002, () => {
-    console.log(`WMS UA Started up at port 3002`);
+app.listen(3003, () => {
+    console.log(`EKOL CARGO Started up at port 3003`);
 });
 
 module.exports = { app };

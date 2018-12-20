@@ -1,5 +1,5 @@
-const mongoose = require('mongoose-erdis-config');
-
+const mongoose = require('mongoose');
+const {conn} = require('./../db/mongoose-erdis-config');
 
 var kafkaTopicSchema = new mongoose.Schema({
     appId: {
@@ -19,6 +19,6 @@ var kafkaTopicSchema = new mongoose.Schema({
     }
 });
 
-var kafkaTopic = mongoose.model('kafkaTopic', kafkaTopicSchema);
+var kafkaTopic = conn.model('kafkaTopic', kafkaTopicSchema);
 
 module.exports = { kafkaTopic } 

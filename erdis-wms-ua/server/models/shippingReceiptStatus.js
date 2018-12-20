@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
-
+const {conn} = require('../db/mongoose-erdis-cargo-ekol');
 
 var timelineSchema = new mongoose.Schema({
 
@@ -53,7 +53,7 @@ var ShippingReceiptStatusSchema = new mongoose.Schema({
 
 
 
-var ShippingReceiptStatus = mongoose.model('ShippingReceiptStatus', ShippingReceiptStatusSchema);
+var ShippingReceiptStatus = conn.model('ShippingReceiptStatus', ShippingReceiptStatusSchema);
 
 
 module.exports = { ShippingReceiptStatus }

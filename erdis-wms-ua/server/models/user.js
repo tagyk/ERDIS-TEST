@@ -1,4 +1,5 @@
-const mongoose = require('./db/mongoose-erdis-config');
+const mongoose = require('mongoose');
+const {conn} = require('./../db/mongoose-erdis-config');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
@@ -126,7 +127,7 @@ UserSchema.pre('save', function (next) {
 });
 
 
-var User = mongoose.model('User', UserSchema);
+var User = conn.model('User', UserSchema);
 
 module.exports = {User}
 

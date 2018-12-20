@@ -1,5 +1,5 @@
-
-const mongoose = require('mongoose-erdis-config');
+const mongoose = require('mongoose');
+const {conn} = require('./../db/mongoose-erdis-config');
 //const validator = require('validator');
 
 var kafkaErrorLogSchema = new mongoose.Schema({
@@ -29,6 +29,6 @@ var kafkaErrorLogSchema = new mongoose.Schema({
     }
 });
 
-var kafkaErrorLog = mongoose.model('kafkaErrorLog', kafkaErrorLogSchema);
+var kafkaErrorLog = conn.model('kafkaErrorLog', kafkaErrorLogSchema);
 
 module.exports = { kafkaErrorLog } 

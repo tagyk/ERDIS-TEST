@@ -1,6 +1,6 @@
 const sql = require('mssql');
 const fs = require("fs");
-var { mongoose } = require('./../server/db/mongoose');
+
 var { ShippingReceipt } = require('./../server/models/ShippingReceipt');
 var { ShippingReceiptStatus } = require('./../server/models/ShippingReceiptStatus');
 var { ErrorLog } = require('./../server/models/ErrorLog');

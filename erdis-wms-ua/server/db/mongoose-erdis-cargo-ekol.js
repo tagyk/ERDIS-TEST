@@ -6,10 +6,10 @@ var mongoose = require('mongoose');
 mongoose.set('useFindAndModify', false);
 
 
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/ErdisWmsUA',{
+//mongoose.Promise = global.Promise;
+var conn = mongoose.createConnection('mongodb://localhost:27017/ErdisCargoEkol',{
     useCreateIndex: true,
     useNewUrlParser: true 
 });
 
-module.exports = {mongoose};
+module.exports = {conn};
