@@ -1,4 +1,4 @@
-const mongoose = require('mongose-erdis-config');
+const mongoose = require('./db/mongoose-erdis-config');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');

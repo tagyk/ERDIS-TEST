@@ -1,4 +1,7 @@
 const mongoose = require('mongoose');
+const {conn} = require('../db/mongoose-erdis-cargo-ekol');
+
+
 const validator = require('validator');
 const _ = require('lodash');
 var { ErrorLog } = require('./ErrorLog');
@@ -179,7 +182,7 @@ ShippingReceiptSchema.pre('save', function (next) {
 //     next();
 // });
 
-var ShippingReceipt = mongoose.model('ShippingReceipt', ShippingReceiptSchema);
+var ShippingReceipt = conn.model('ShippingReceipt', ShippingReceiptSchema);
 
 module.exports = { ShippingReceipt }
 
