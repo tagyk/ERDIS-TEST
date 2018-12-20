@@ -1,35 +1,34 @@
-const mongoose = require('mongoose');
+
+const mongoose = require('mongoose-erdis-config');
 //const validator = require('validator');
 
 var kafkaErrorLogSchema = new mongoose.Schema({
-    appId:{
+    appId: {
         type: String
     },
-    topicName:{
+    topicName: {
         type: String
     },
-    errorMessage:{
+    errorMessage: {
         type: String
     },
-    errorType:{
+    errorType: {
         type: String
     },
-    errorTime:{
+    errorTime: {
         type: Date
     },
-    module:{
+    module: {
         type: String
     },
-    partition:{
+    partition: {
         type: String
     },
-    recordId:{
+    recordId: {
         type: String
     }
-    
 });
 
 var kafkaErrorLog = mongoose.model('kafkaErrorLog', kafkaErrorLogSchema);
 
-
-module.exports = { kafkaErrorLog }
+module.exports = { kafkaErrorLog } 
