@@ -2,7 +2,7 @@ const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
 const { ObjectID } = require('mongodb');
-
+var { mongooseErdisConf } = require('./db/mongoose-erdis-config');
 var { mongoose } = require('./db/mongoose');
 var { User } = require('./models/user');
 var { ShippingReceipt } = require('./models/ShippingReceipt');
@@ -136,7 +136,7 @@ app.delete('/users/me/token', authenticate, (req, res) => {
 
 
 app.listen(3002, () => {
-    console.log(`Started up at port 3002`);
+    console.log(`WMS UA Started up at port 3002`);
 });
 
 module.exports = { app };

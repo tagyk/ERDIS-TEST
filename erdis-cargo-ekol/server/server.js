@@ -135,8 +135,8 @@ app.delete('/users/me/token', authenticate, (req, res) => {
 
 
 
-app.listen(3002, () => {
-    console.log(`Started up at port 3002`);
+app.listen(3003, () => {
+    console.log(`EKOL CARGO Started up at port 3003`);
 });
 
 module.exports = { app };
