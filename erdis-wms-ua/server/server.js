@@ -5,7 +5,7 @@ const { ObjectID } = require('mongodb');
 var { User } = require('./models/user');
 var { ShippingReceipt } = require('./models/ShippingReceipt');
 var { authenticate } = require('./middleware/authenticate');
-var { ShippingReceiptStatus } = require('./models/ShippingReceiptStatus');
+
 
 var app = express();
 app.use(bodyParser.json());
@@ -24,6 +24,7 @@ app.post('/shippingReceipt', (req, res) => {
     });
 });
 
+
 // GET /shippingReceipt
 app.get('/shippingReceipt', authenticate, (req, res) => {
     ShippingReceipt.find().sort({_id : -1 }).select({ "boxHeader.boxDetails.isAssorment": 0 , "_id": 0}).limit(10).then((shippingReceipts) => {
@@ -33,58 +34,6 @@ app.get('/shippingReceipt', authenticate, (req, res) => {
     });
 });
 
-// GET /shippingReceiptStatus
-app.get('/shippingReceipt/status', authenticate, (req, res) => {
-    ShippingReceiptStatus.find().then((result) => {
-        res.send({ result });
-    }, (e) => {
-        res.status(400).send(e);
-    });
-});
-
-// GET /shippingReceiptStatus documentNum
-app.get('/shippingReceipt/status/:documentNum', authenticate, (req, res) => {
-    var _docNum = req.params.documentNum;
-    ShippingReceiptStatus.find({documentNum : _docNum}).then((result) => {
-        res.send({ result });
-    }, (e) => {
-        res.status(400).send(e);
-    });
-});
-
-// GET /shippingReceiptStatus UpdateStatus
-app.patch('/shippingReceipt/updateStatus/:boxId', authenticate, (req, res) => {
-    var _refBoxId = req.params.boxId;
-    var body = _.pick(req.body, ['status']);
-    ShippingReceiptStatus.findOne({ refBoxId: _refBoxId }, function (err, result) {
-        ShippingReceiptStatus.findByIdAndUpdate(result._id, {
-            $push: { statusTimeline: { prevStatus: result.status, prevUpdateAt: result.statusUpdatedAt } },
-            $set: { status: body.status, statusUpdatedAt: new Date() }
-        }, { new: true }, function (err, doc) {
-            res.send({ status: doc.status, uptDate: doc.statusUpdatedAt });
-        }, (e) => {
-            res.status(400).send(e);
-        });
-    });
-});
-
-
-
-// GET /shippingReceiptStatus updateLocation
-app.patch('/shippingReceipt/updateLocation/:boxId', authenticate, (req, res) => {
-    var _refBoxId = req.params.boxId;
-    var body = _.pick(req.body, ['location']);
-    ShippingReceiptStatus.findOne({ refBoxId: _refBoxId }, function (err, result) {
-        ShippingReceiptStatus.findByIdAndUpdate(result._id, {
-            $push: { locationTimeline: { prevStatus: result.location, prevUpdateAt: result.locationUpdatedAt } },
-            $set: { location: body.location, locationUpdatedAt: new Date() }
-        }, { new: true }, function (err, doc) {
-            res.send({ location: doc.location, uptDate: doc.locationUpdatedAt });
-        }, (e) => {
-            res.status(400).send(e);
-        });
-    });
-});
 
 
 
@@ -133,8 +82,8 @@ app.delete('/users/me/token', authenticate, (req, res) => {
 
 
 
-app.listen(3003, () => {
-    console.log(`EKOL CARGO Started up at port 3003`);
+app.listen(3002, () => {
+    console.log(`WMS UA Started up at port 3002`);
 });
 
 module.exports = { app };
