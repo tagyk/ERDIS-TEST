@@ -7,7 +7,7 @@ var { apiQueue } = require('../../models/apiQueue');
 
 
 //POST /shippingReceipt
-router.post('/shippingReceipt', (req, res) => {
+router.post('/add', (req, res) => {
     var body = req.body;// _.pick(req.body, ['documentNum', 'locationTo']);
     var shippingReceipts = new ShippingReceipt(body);
     shippingReceipts.save().then((doc) => {
@@ -19,11 +19,14 @@ router.post('/shippingReceipt', (req, res) => {
 
 
 // GET /shippingReceipt
-router.get('/shippingReceipt', authenticate, (req, res) => {
+router.get('/', authenticate, (req, res) => {
     var dataValues;
     apiQueue.find({ documentName: "ShippingReceipt", isSent: false }).then((result) => {
         dataValues = result.map(function (data) { return data.keyValue; });
-        ShippingReceipt.find({ documentNum: { $in: dataValues } }).sort({ _id: -1 }).select({ "boxHeader.boxDetails.isAssorment": 0, "_id": 0 }).then((shippingReceipts) => {
+        ShippingReceipt.find({ documentNum: { $in: dataValues } })
+        .sort({ _id: -1 })
+        .select({ "_id": 0,"boxHeader.boxDetails": 0 })
+        .then((shippingReceipts) => {
             res.send({ shippingReceipts });
         }, (e) => {
             res.status(400).send(e);
@@ -34,7 +37,7 @@ router.get('/shippingReceipt', authenticate, (req, res) => {
 });
 
 // patch /shippingReceipt commit
-router.patch('/shippingReceipt/commit/:documentNum', authenticate, (req, res) => {
+router.patch('/commit/:documentNum', authenticate, (req, res) => {
     var _refDocNum = req.params.documentNum;
     var _token = req.header('x-auth');
     var UserName;
