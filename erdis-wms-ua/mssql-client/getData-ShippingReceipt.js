@@ -2,10 +2,11 @@ const sql = require('mssql');
 const fs = require("fs");
 
 var { ShippingReceipt } = require('./../server/models/ShippingReceipt');
-var { ShippingReceiptStatus } = require('./../server/models/ShippingReceiptStatus');
+
 var { ErrorLog } = require('./../server/models/ErrorLog');
 var mssqlClient = require('./mssqlClient');
 var moment = require('moment');
+var {kafka} = require('./../kafka-client/kafkaClient');
 
 
 
@@ -26,7 +27,7 @@ async function getDispatchHeader(_dispatchNum) {
                 transactionType: ShippingReceipt.TransactionTypes.DD,
                 movementType: dispatchHeader.movementType,
                 documentType: '',
-                documentStatus:dispatchHeader.documentStatus,
+                documentStatus: dispatchHeader.documentStatus,
                 documentNum: dispatchHeader.documentNum,
                 documentDate: moment(dispatchHeader.documentDate).format('DD-MM-YYYY'),
                 locationTo: dispatchHeader.locationTo,
@@ -59,8 +60,8 @@ async function getBoxHeader(_dispatchNum) {
         let con = new mssqlClient("MidaxSender");
         let pool = await con.connect();
         let result = await pool.request()
-        .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
-        .input('DispatchNum', sql.NVarChar, _dispatchNum)
+            .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
+            .input('DispatchNum', sql.NVarChar, _dispatchNum)
             .execute('ERDIS.GetBoxHeader')
         await con.disconnect();
         for (var i = 0, len = result.recordset.length; i < len; i++) {
@@ -72,17 +73,9 @@ async function getBoxHeader(_dispatchNum) {
                 volume: boxHeader.volume,
                 volumetricWeight: boxHeader.volumetricWeight,
                 weight: boxHeader.weight,
-                numberOfBarcode:boxHeader.numberOfBarcode
+                numberOfBarcode: boxHeader.numberOfBarcode
             });
             await vShippingReceipt.save();
-            new ShippingReceiptStatus({
-                documentNum: vShippingReceipt.documentNum,
-                refBoxId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id,
-                boxBarcode: boxHeader.boxBarcode,
-                status: "Hazır",
-                location: "Depo",
-                createdAt: Date.now() //moment(Date.now()).format('DD-MM-YYYY')
-            }).save();
             getBoxDetails({ documentNum: _dispatchNum, docId: vShippingReceipt._id, boxNo: boxHeader.boxBarcode, subId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id })
                 .then(() => {
                     ShippingReceipt.findOne({ documentNum: _dispatchNum }, function (err, sr) {
@@ -136,15 +129,13 @@ sql.on('error', err => {
 
 (async function () {
     try {
-        // let con = new mssqlClient("MidaxSender");
-        // let pool = await con.connect();
-        // let result = await pool.request()
-        //    //.input('input_parameter', sql.Int, value)
-        //     .query('select * from dbo.CURRENCY')
-        // await con.disconnect();
-        // for (var i = 0, len = result.recordset.length; i < len; i++) {
-        //     var ENT0076 = result.recordset[i];
-        // }
+
+         console.log("sadf");
+         var message = await kafka.messageConsumer(kafka.createClient(), "ERDISQUEUE", 0, false);
+
+
+        getDispatchHeader('30680306');
+
 
 
 
@@ -160,8 +151,8 @@ sql.on('error', err => {
         // //.output('output_parameter', sql.VarChar(50))
         // for (var i = 0, len = result.recordset.length; i < len; i++) {
         //     var dispatchNum = result.recordset[i];
-            getDispatchHeader('30680306');
-            //await getEnt009(result.recordset[i].DocNum, result.recordset[i].DetailsCount);
+        
+        //await getEnt009(result.recordset[i].DocNum, result.recordset[i].DetailsCount);
         //}
     } catch (err) {
         ErrorLog.AddLogData(err, " ", "ShippingReceipt kafka");
