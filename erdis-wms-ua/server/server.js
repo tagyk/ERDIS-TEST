@@ -42,11 +42,14 @@ app.get('/shippingReceipt', authenticate, (req, res) => {
     });
 });
 
-// patch /shippingReceiptStatus updateLocation
+// patch /shippingReceipt commit
 app.patch('/shippingReceipt/commit/:documentNum', authenticate, (req, res) => {
     var _refDocNum = req.params.documentNum;
-    apiQueue.findOneAndUpdate({ keyValue: _refDocNum }, { $set: { isSent: 'true' } }, { new: true }, function (err, result) {
-        if (err) res.status(400).send(err);
+    apiQueue.findOneAndUpdate({ keyValue: _refDocNum }, { $set: { isSent: 'true', sentAt: Date.now()  } }, { new: true }, function (err, result) {
+        if (err){ 
+            res.status(400).send(err);
+            ErrorLog.AddLogData(e, "api", "patch /shippingReceipt commit");
+        }
         res.status(200).send();
     });
 });

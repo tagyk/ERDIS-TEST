@@ -15,6 +15,9 @@ var apiQueueSchema = new mongoose.Schema({
     createdAt: {
         type: Date
     },
+    sentAt: {
+        type: Date
+    },
 
 });
 apiQueueSchema.pre('save', function (next) {
