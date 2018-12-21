@@ -1,5 +1,4 @@
 const sql = require('mssql');
-const fs = require("fs");
 
 var { ShippingReceipt } = require('./../server/models/ShippingReceipt');
 var { apiQueue } = require('./../server/models/apiQueue');
@@ -130,9 +129,9 @@ async function getBoxDetails(_doc) {
 
 };
 
-sql.on('error', err => {
-    console.log(err);
-});
+// sql.on('error', err => {
+//     console.log(err);
+// });
 
 (async function () {
     try {
