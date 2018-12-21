@@ -71,7 +71,7 @@ app.patch('/shippingReceipt/updateStatus/:boxId', authenticate, (req, res) => {
 
 
 
-// GET /shippingReceiptStatus updateLocation
+// patch /shippingReceiptStatus updateLocation
 app.patch('/shippingReceipt/updateLocation/:boxId', authenticate, (req, res) => {
     var _refBoxId = req.params.boxId;
     var body = _.pick(req.body, ['location']);

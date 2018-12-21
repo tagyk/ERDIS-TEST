@@ -2,6 +2,7 @@ const sql = require('mssql');
 const fs = require("fs");
 
 var { ShippingReceipt } = require('./../server/models/ShippingReceipt');
+var { apiQueue } = require('./../server/models/apiQueue');
 
 var { ErrorLog } = require('./../server/models/ErrorLog');
 var mssqlClient = require('./mssqlClient');
@@ -78,11 +79,17 @@ async function getBoxHeader(_dispatchNum) {
             await vShippingReceipt.save();
             getBoxDetails({ documentNum: _dispatchNum, docId: vShippingReceipt._id, boxNo: boxHeader.boxBarcode, subId: vShippingReceipt.boxHeader[vShippingReceipt.boxHeader.length - 1]._id })
                 .then(() => {
+                    // Data'nın gönderime hazır olması durumu kontrolü
                     ShippingReceipt.findOne({ documentNum: _dispatchNum }, function (err, sr) {
                         if (sr.numberOfBox + sr.numberOfBarcode == sr.__v && sr.isReady == false) {
                             ShippingReceipt.findOneAndUpdate({ documentNum: _dispatchNum }, { $set: { isReady: 'true' } }, { new: true }, function (err, result) {
                                 if (err) ErrorLog.AddLogData(err, sr.documentNum, "getEnt076 then");
                             });
+                            new apiQueue({
+                                documentName: "ShippingReceipt",
+                                keyValue: _dispatchNum,
+                                isSent : false
+                            }).save();
                         }
                     });
                 }).catch((e) => {
@@ -130,8 +137,8 @@ sql.on('error', err => {
 (async function () {
     try {
 
-         console.log("sadf");
-         var message = await kafka.messageConsumer(kafka.createClient(), "ERDISQUEUE", 0, false);
+        //  console.log("sadf");
+        //  var message = await kafka.messageConsumer(kafka.createClient(), "ERDISQUEUE", 0, false);
 
 
         getDispatchHeader('30680306');

@@ -3,8 +3,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { ObjectID } = require('mongodb');
 var { User } = require('./models/user');
+var { apiQueue } = require('./models/apiQueue');
 var { ShippingReceipt } = require('./models/ShippingReceipt');
 var { authenticate } = require('./middleware/authenticate');
+var { ErrorLog } = require('./models/ErrorLog');
 
 
 var app = express();
@@ -27,12 +29,28 @@ app.post('/shippingReceipt', (req, res) => {
 
 // GET /shippingReceipt
 app.get('/shippingReceipt', authenticate, (req, res) => {
-    ShippingReceipt.find().sort({_id : -1 }).select({ "boxHeader.boxDetails.isAssorment": 0 , "_id": 0}).limit(10).then((shippingReceipts) => {
-        res.send({ shippingReceipts });
+    var dataValues;
+    apiQueue.find({ documentName: "ShippingReceipt", isSent: false }).then((result) => {
+        dataValues = result.map(function (data) { return data.keyValue; });
+        ShippingReceipt.find({ documentNum: { $in: dataValues } }).sort({ _id: -1 }).select({ "boxHeader.boxDetails.isAssorment": 0, "_id": 0 }).then((shippingReceipts) => {
+            res.send({ shippingReceipts });
+        }, (e) => {
+            res.status(400).send(e);
+        });
     }, (e) => {
-        res.status(400).send(e);
+        ErrorLog.AddLogData(e, "api", "GET /shippingReceipt server.js");
     });
 });
+
+// patch /shippingReceiptStatus updateLocation
+app.patch('/shippingReceipt/commit/:documentNum', authenticate, (req, res) => {
+    var _refDocNum = req.params.documentNum;
+    apiQueue.findOneAndUpdate({ keyValue: _refDocNum }, { $set: { isSent: 'true' } }, { new: true }, function (err, result) {
+        if (err) res.status(400).send(err);
+        res.status(200).send();
+    });
+});
+
 
 
 
