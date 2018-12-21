@@ -43,16 +43,17 @@ router.patch('/commit/:documentNum', authenticate, (req, res) => {
     var UserName;
     User.findByToken(_token).then((user) => {
         UserName = user.name;
+        apiQueue.findOneAndUpdate({ keyValue: _refDocNum }, { $set: { isSent: 'true', sentAt: Date.now(), sentBy: UserName } }, { new: true }, function (err, result) {
+            if (err) {
+                res.status(400).send(err);
+                ErrorLog.AddLogData(err, "api", "patch /shippingReceipt commit");
+            }
+            res.status(200).send();
+        });
     }).catch((e) => {
         ErrorLog.AddLogData(err, "api", "patch /shippingReceipt commit User.findByToken");
     });
-    apiQueue.findOneAndUpdate({ keyValue: _refDocNum }, { $set: { isSent: 'true', sentAt: Date.now(), sentBy: UserName } }, { new: true }, function (err, result) {
-        if (err) {
-            res.status(400).send(err);
-            ErrorLog.AddLogData(err, "api", "patch /shippingReceipt commit");
-        }
-        res.status(200).send();
-    });
+    
 });
 
 

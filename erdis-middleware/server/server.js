@@ -11,8 +11,8 @@ app.use(bodyParser.json());
 
 app.use('/',routes);
 
-app.listen(3002, () => {
-    console.log(`WMS UA Started up at port 3002`);
+app.listen(3000, () => {
+    console.log(`ERDIS MIDDLEWARE Started up at port 3000`);
 });
 
 
