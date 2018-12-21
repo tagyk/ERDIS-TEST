@@ -142,7 +142,11 @@ sql.on('error', err => {
 
 
         getDispatchHeader('30680306');
-
+        getDispatchHeader('30705044');
+        getDispatchHeader('30704757');
+        getDispatchHeader('30704654');
+        getDispatchHeader('30704410');
+        getDispatchHeader('30704119');
 
 
 

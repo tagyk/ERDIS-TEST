@@ -27,6 +27,7 @@ var UserSchema = new mongoose.Schema({
     default: Date.now()
   },
   updated_at: Date,
+  name: String,
 
 
   tokens: [{
