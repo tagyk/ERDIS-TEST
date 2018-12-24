@@ -1,21 +1,25 @@
+'use strict';
+
 var { kafkaErrorLog } = require('./../server/models/kafkaErrorLog');
+// const express = require('express');
+// const bodyParser = require('body-parser');
+// const { ObjectID } = require('mongodb');
+var { mongoose } = require('./../server/db/mongoose');
+var { kafkaTopic } = require('./../server/models/kafkaTopic');
 
-
-var kafka = {}
-kafka.clientCreated = false;
 var kafka = require('kafka-node');
 var Consumer = kafka.Consumer;
 var Producer = kafka.Producer;
 var Offset = kafka.Offset;
-var Client = kafka.Client;
+var client = kafka.Client;
+var topic = kafka.Topic;
 
-var topic = '';
-var message = '';
 
 //const client1 = new Client('servertr77:2181');
 
 kafka.createClient = function () {
-    let client1 = new Client('servertr77:2181');
+
+    let client1 = new client('servertr77:2181');
     return client1;
 };
 
@@ -37,27 +41,29 @@ kafka.newClient = function () {
     });
 };
 
-kafka.messageConsumer = function (client, topic, partition = 0, autoCommit = true) {
+kafka.messageConsumer = function (client = kafka.createClient(), topic, partition = 0, autoCommit = false, cb) {
+
     var topics = [{ topic, partition }];
-    var options = { autoCommit, fetchMaxWaitMs: 1000, fetchMaxBytes: 1024 * 1024 };
+    var options = { autoCommit: autoCommit, fetchMaxWaitMs: 1000, fetchMaxBytes: 1024 * 1024 };
     var consumer = new Consumer(client, topics, options);
     var offset = new Offset(client);
-
-
+    let dataValues = [];
 
     consumer.on('message', function (message) {
-
+        
         var jsonized = JSON.stringify(message);
         var objectValue = JSON.parse(jsonized);
 
         if (objectValue['offset'] === objectValue['highWaterOffset'] - 1) {
-            consumer.close(true, function () {
-                console.log('closed');
-                process.exit();
+
+            consumer.close(true, function (err, message) {
+                cb(dataValues);
             });
+
         }
-        console.log(message);
-        return message;
+
+        dataValues = dataValues.concat(message)
+
     });
 
     consumer.on('error', function (err) {
@@ -67,8 +73,6 @@ kafka.messageConsumer = function (client, topic, partition = 0, autoCommit = tru
             process.exit();
         });
     });
-
-
 
 }
 
@@ -135,8 +139,9 @@ kafka.checkTopic = function (topicName) {
     });
 }
 
-kafka.createNewTopic = function (appId, topicName, description = '', module, partition) {
-    new kafkaTopic({
+
+kafka.createNewTopic = async function (client, appId, topicName, description = '', module, partition) {
+    await new kafkaTopic({
         appId: appId,
         topicName: topicName,
         description: description,
@@ -146,7 +151,17 @@ kafka.createNewTopic = function (appId, topicName, description = '', module, par
         console.log(temp);
     });
 
+    var topics = await [{
+        topic: topicName,
+        partitions: partition
+    }];
+
+    await client.createTopics(topics, (error, result) => {
+        // result is an array of any errors if a given topic could not be created 
+    });
+    process.exit();
 }
+
 
 kafka.messageProducer = function (client, message, topic, partition) {
     var producer = new Producer(client, { requireAcks: 1 });
@@ -168,3 +183,9 @@ kafka.messageProducer = function (client, message, topic, partition) {
 }
 
 module.exports = { kafka };
+
+
+
+
+
+

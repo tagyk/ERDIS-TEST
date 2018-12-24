@@ -1,12 +1,9 @@
-var { kafkaTopicConf } = require('./../server/models/kafkaTopicConf');
+var { kafkaTopic } = require('./../server/models/kafkaTopic');
 const _ = require('lodash');
-const express = require('express');
-const bodyParser = require('body-parser');
-const { ObjectID } = require('mongodb');
 var { mongoose } = require('./../server/db/mongoose');
 
 var kafka = require('kafka-node')
-/*   Consumer = kafka.Consumer,
+   Consumer = kafka.Consumer,
    client = new kafka.Client("servertr77:2181/"),
    consumer = new Consumer(
        client,
@@ -33,21 +30,39 @@ consumer.on('error', function (err) {
        console.log(topic);
    });
 
+});
+
+ 
+/*kafkaTopicConf.findOne({ topicName: 'ERDISQUEUE' }).then((result) => {
+    topic = result.topicName;
+    console.log(topic);
 });*/
 
 
-kafkaTopicConf.findOne()
-    .where('topicName').gt('ERDISQUEUE')
-    .select('topicName')
-    .exec(function (err, data) {
-        if (err) return handleError(err);
-        console.log(data);
-    });
+/*
+new kafkaTopic({
+    appId: 'CL1',
+    topicName: 'ERDISQUEUE',
+    description: 'Test1',
+    module: 'POS',
+    partition: 1
+}).save().then((temp) => {
+    console.log(temp);
+});*/
 
-kafkaTopicConf.find({}, function (err, docs) {
-    console.log(JSON.stringify(docs));
-    console.log('%s', docs);
+
+kafkaTopic.findOne({}, function (err, result) {
+    
+    let topic = result.topicName;
+   // console.log(result);
+}).then((topic) =>{ 
+    if(topic)
+    {
+        return true;
+    } 
+    else false;
 });
+
 
 
 

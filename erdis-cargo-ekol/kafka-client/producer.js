@@ -10,11 +10,11 @@ var a = argv.a || 0;
 var producer = new Producer(client, { requireAcks: 1 });
 
 producer.on('ready', function () {
-  var message = 'this is a message';
-  var keyedMessage = new KeyedMessage('5keyed', 'This is a Keyed message of lafla');
+  var message = 'cem';
+  //var keyedMessage = new KeyedMessage('ahmet', 'taygun');
 
   producer.send([
-    { topic: topic, partition: p, messages: [message, keyedMessage], attributes: a }
+    { topic: topic, partition: p, messages: [message], attributes: a }
   ], function (err, result) {
     console.log(err || result);
     process.exit();

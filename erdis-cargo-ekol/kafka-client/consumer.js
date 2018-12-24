@@ -5,13 +5,13 @@ var Consumer = kafka.Consumer;
 var Offset = kafka.Offset;
 var Client = kafka.Client;
 var argv = require('optimist').argv;
-var topic = 'ERDISQUEUE';
+var topic = 'ERDISQUEUE2';
 var client = new Client('servertr77:2181');
-var topics = [{ topic: topic, partition: 0 ,offset:190}];
-var options = { autoCommit: false, fetchMaxWaitMs: 1000, fetchMaxBytes: 1024 * 1024, fromoffset: true};
+var topics = [{ topic: topic, partition: 0}];
+var options = { autoCommit: false, fetchMaxWaitMs: 1000, fetchMaxBytes: 1024 * 1024};
 
 var offset = new Offset(client);
-var consumer = new Consumer(client, topics, {fromoffset: 'earliest'});
+var consumer = new Consumer(client, topics);
 
 try{
     consumer.on('message', function (message) {
@@ -19,15 +19,16 @@ try{
         var jsonized = JSON.stringify(message);
         var objectValue = JSON.parse(jsonized);
         console.log(objectValue['offset']);
-        
-        /*if (objectValue['offset'] === objectValue['highWaterOffset']-1) {
+        /*
+        if (objectValue['offset'] === objectValue['highWaterOffset']-1) {
             consumer.commit(function (err, data) {
                 console.log(objectValue['offset'] + ' commit edildi.');
                 consumer.close(true, function (error) {
                     if (error) {
                         console.log("Consuming closed with error", error);
                     } else {
-                        console.log("Consuming closed");
+                        let err1 = "ax";
+                        console.log("Consuming closed", err1);
                     }
                 });                
             });
