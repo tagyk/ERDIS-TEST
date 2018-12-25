@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const {conn} = require('./../db/mongoose-erdis-middleware');
+const { conn } = require('./../db/mongoose-erdis-middleware');
 
 var barcodeSchema = new mongoose.Schema({
 
@@ -11,6 +11,15 @@ var barcodeSchema = new mongoose.Schema({
     },
     countryOfOrigin: {
         type: String
+    }
+});
+var assormentBarcodeLineSchema = new mongoose.Schema({
+
+    barcode: {
+        type: String
+    },
+    qty: {
+        type: Number
     }
 });
 var assormentBarcodeSchema = new mongoose.Schema({
@@ -26,16 +35,6 @@ var assormentBarcodeSchema = new mongoose.Schema({
     },
     assormentBarcodesLines: [assormentBarcodeLineSchema],
 });
-var assormentBarcodeLineSchema = new mongoose.Schema({
-
-    barcode: {
-        type: String
-    },
-    qty: {
-        type: Number
-    }
-});
-
 
 
 var billOfMaterialSchema = new mongoose.Schema({

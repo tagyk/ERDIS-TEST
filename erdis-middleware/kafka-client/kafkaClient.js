@@ -4,7 +4,7 @@ var { kafkaErrorLog } = require('./../server/models/kafkaErrorLog');
 // const express = require('express');
 // const bodyParser = require('body-parser');
 // const { ObjectID } = require('mongodb');
-var { mongoose } = require('./../server/db/mongoose');
+
 var { kafkaTopic } = require('./../server/models/kafkaTopic');
 
 var kafka = require('kafka-node');
