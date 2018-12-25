@@ -45,7 +45,7 @@ var { kafka } = require('./../kafka-client/kafkaClient');
 
 async function getItemTable(_recId) {
     try {
-        let bom;
+
         let con = new mssqlClient("MidaxSender");
         let pool = await con.connect();
         let result = await pool.request()
@@ -54,6 +54,7 @@ async function getItemTable(_recId) {
             .execute('ERDIS.GetItemTable')
         await con.disconnect();
         for (var i = 0, len = result.recordset.length; i < len; i++) {
+            let bom;
             var billOfMaterials = result.recordset[i];
             await new billOfMaterial({
                 itemId: billOfMaterials.itemId,
@@ -94,7 +95,7 @@ async function getBarcode(_bom) {
         await con.disconnect();
         for (var i = 0, len = result.recordset.length; i < len; i++) {
             var barcodes = result.recordset[i];
-            let vbillOfMaterial = await billOfMaterial.findOne({ itemId: _bom.itemId });
+            let vbillOfMaterial = await billOfMaterial.findOne({ _id: _bom._id });
             await vbillOfMaterial.barcodes.push({
                 barcode: barcodes.barcode,
                 description: barcodes.description,
@@ -122,14 +123,14 @@ async function getAssortmentBarcode(_bom) {
         await con.disconnect();
         for (var i = 0, len = result.recordset.length; i < len; i++) {
             var barcodes = result.recordset[i];
-            let vbillOfMaterial = await billOfMaterial.findOne({ itemId: _bom.itemId });
+            let vbillOfMaterial = await billOfMaterial.findOne({ _id: _bom._id });
             await vbillOfMaterial.assormentBarcodes.push({
                 barcode: barcodes.barcode,
                 description: barcodes.description,
                 countryOfOrigin: barcodes.countryOfOrigin
             });
             await vbillOfMaterial.save();
-            getAssortmentBarcodeLine({ bomId : vbillOfMaterial._id, sub: vbillOfMaterial.assormentBarcodes[vbillOfMaterial.assormentBarcodes.length - 1] });
+            getAssortmentBarcodeLine({ bomId: vbillOfMaterial._id, sub: vbillOfMaterial.assormentBarcodes[vbillOfMaterial.assormentBarcodes.length - 1] });
         }
     }
     catch (err) {
