@@ -83,6 +83,7 @@ var billOfMaterialSchema = new mongoose.Schema({
     barcodes: [barcodeSchema],
     assormentBarcodes: [assormentBarcodeSchema],
 });
+billOfMaterialSchema.index({inventDimId: 1, itemId: 1}, {unique: true});
 
 var billOfMaterial = conn.model('billOfMaterial', billOfMaterialSchema);
 

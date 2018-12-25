@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const {conn} = require('../db/mongoose-erdis-wms-ua');
+const {conn} = require('../db/mongoose-erdis-middleware.js');
 const validator = require('validator');
 const _ = require('lodash');
 var moment = require('moment');

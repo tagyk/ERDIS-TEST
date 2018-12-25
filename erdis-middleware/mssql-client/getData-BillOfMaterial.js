@@ -79,7 +79,7 @@ async function getItemTable(_recId) {
         }
     }
     catch (err) {
-        ErrorLog.AddLogData(err, _bom.itemId, "getData-BillOfMaterial getItemTable()");
+        ErrorLog.AddLogData(err, _recId, "getData-BillOfMaterial getItemTable()");
     }
 };
 async function getBarcode(_bom) {
