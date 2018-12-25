@@ -71,7 +71,7 @@ async function getItemTable(_recId) {
                 retailGroupDesc: billOfMaterials.retailGroupDesc,
                 inventDimId: billOfMaterials.inventDimId
             }).save().then((temp) => {
-                bom = temp.itemId;
+                bom = temp;
             });
             getBarcode(bom);
             getAssortmentBarcode(bom);
