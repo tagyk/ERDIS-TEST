@@ -14,12 +14,12 @@ var { kafka } = require('./../kafka-client/kafkaClient');
         //  var message = await kafka.messageConsumer(kafka.createClient(), "ERDISQUEUE", 0, false);
 
 
-        getItemTable('30680306');
-        getItemTable('30705044');
-        getItemTable('30704757');
-        getItemTable('30704654');
-        getItemTable('30704410');
-        getItemTable('30704119');
+        getItemTable(5637149101);
+        // getItemTable('30705044');
+        // getItemTable('30704757');
+        // getItemTable('30704654');
+        // getItemTable('30704410');
+        // getItemTable('30704119');
 
         // let con = new mssqlClient("Depo");
         // let pool = await con.connect();
@@ -50,8 +50,8 @@ async function getItemTable(_recId) {
         let pool = await con.connect();
         let result = await pool.request()
             .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
-            .input('DispatchNum', sql.NVarChar, _recId)
-            .execute('ERDIS.GetDispatchHeader')
+            .input('InventTableRecId', sql.BigInt, _recId)
+            .execute('ERDIS.GetItemTable')
         await con.disconnect();
         for (var i = 0, len = result.recordset.length; i < len; i++) {
             var billOfMaterials = result.recordset[i];
@@ -68,7 +68,8 @@ async function getItemTable(_recId) {
                 divisionGroup: billOfMaterials.divisionGroup,
                 divisionGroupDesc: billOfMaterials.divisionGroupDesc,
                 retailGroup: billOfMaterials.retailGroup,
-                retailGroupDesc: billOfMaterials.retailGroupDesc
+                retailGroupDesc: billOfMaterials.retailGroupDesc,
+                inventDimId: billOfMaterials.inventDimId
             }).save().then((temp) => {
                 bom = temp.itemId;
             });
@@ -87,8 +88,9 @@ async function getBarcode(_bom) {
         let pool = await con.connect();
         let result = await pool.request()
             .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
-            .input('DispatchNum', sql.NVarChar, _bom)
-            .execute('ERDIS.GetDispatchHeader')
+            .input('ItemId', sql.NVarChar, _bom.itemId)
+            .input('InventDimId', sql.NVarChar, _bom.inventDimId)
+            .execute('ERDIS.GetBarcode')
         await con.disconnect();
         for (var i = 0, len = result.recordset.length; i < len; i++) {
             var barcodes = result.recordset[i];
@@ -112,8 +114,11 @@ async function getAssortmentBarcode(_bom) {
         let pool = await con.connect();
         let result = await pool.request()
             .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
-            .input('DispatchNum', sql.NVarChar, _bom)
-            .execute('ERDIS.GetDispatchHeader')
+            .input('ItemId', sql.NVarChar, _bom.itemId)
+            .input('color', sql.NVarChar, _bom.color)
+            .input('season', sql.NVarChar, _bom.season)
+            .input('style', sql.NVarChar, _bom.style)
+            .execute('ERDIS.GetAssortmentBarcode')
         await con.disconnect();
         for (var i = 0, len = result.recordset.length; i < len; i++) {
             var barcodes = result.recordset[i];
@@ -124,7 +129,7 @@ async function getAssortmentBarcode(_bom) {
                 countryOfOrigin: barcodes.countryOfOrigin
             });
             await vbillOfMaterial.save();
-            getAssortmentBarcodeLine({ bomId = vbillOfMaterial._id, subId: vbillOfMaterial.assormentBarcodes[vbillOfMaterial.assormentBarcodes.length - 1]._id });
+            getAssortmentBarcodeLine({ bomId : vbillOfMaterial._id, sub: vbillOfMaterial.assormentBarcodes[vbillOfMaterial.assormentBarcodes.length - 1] });
         }
     }
     catch (err) {
@@ -137,13 +142,13 @@ async function getAssortmentBarcodeLine(_assortmentBarcode) {
         let pool = await con.connect();
         let result = await pool.request()
             .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
-            .input('boxBarcode', sql.NVarChar, _doc.boxNo)
-            .execute('ERDIS.GetBoxDetails')
+            .input('barcode', sql.NVarChar, _assortmentBarcode.sub.barcode)
+            .execute('ERDIS.GetAssortmentBarcodeLine')
         await con.disconnect();
         for (var i = 0, len = result.recordset.length; i < len; i++) {
             var assortmentBarcodeLines = result.recordset[i];
             var vbillOfMaterial = await billOfMaterial.findById(_assortmentBarcode.bomId);
-            var sub = await vbillOfMaterial.assormentBarcodes.id(_assortmentBarcode.subId);
+            var sub = await vbillOfMaterial.assormentBarcodes.id(_assortmentBarcode.sub.id);
             await sub.assormentBarcodesLines.push({ barcode: assortmentBarcodeLines.barcode, qty: assortmentBarcodeLines.qty });
             await vbillOfMaterial.save();
 

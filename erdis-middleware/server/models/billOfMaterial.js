@@ -78,6 +78,9 @@ var billOfMaterialSchema = new mongoose.Schema({
     retailGroupDesc: {
         type: String
     },
+    inventDimId: {
+        type: String
+    },
     barcodes: [barcodeSchema],
     assormentBarcodes: [assormentBarcodeSchema],
 });
