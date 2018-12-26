@@ -92,7 +92,7 @@ async function getBoxHeader(_dispatchNum) {
                             });
                         }
                     });
-                }).catch((e) => {
+                }).catch((err) => {
                     ErrorLog.AddLogData(err, _dispatchNum, "ShippingReceiptStatus getBoxHeader()");
                 });
         }
