@@ -45,10 +45,10 @@ var { kafka } = require('./../kafka-client/kafkaClient');
 
 async function getBarcode(_recId) {
     try {
-        let con = new mssqlClient("MidaxSender");
+        let con = new mssqlClient("ColinsTR_ReadOnly");
         let pool = await con.connect();
         let result = await pool.request()
-            .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
+            .input('dataAreaId', sql.NVarChar, 'v01')
             .input('RecId', sql.BigInt, _recId)
             .execute('ERDIS.GetBarcodeRecId')
         await con.disconnect();
@@ -70,10 +70,10 @@ async function getBarcode(_recId) {
 };
 async function getBarcodeAssortment(_recId) {
     try {
-        let con = new mssqlClient("MidaxSender");
+        let con = new mssqlClient("ColinsTR_ReadOnly");
         let pool = await con.connect();
         let result = await pool.request()
-            .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
+            .input('dataAreaId', sql.NVarChar, 'v01')
             .input('RecId', sql.BigInt, _recId)
             .execute('ERDIS.GetAssortmentBarcodeRecId')
         await con.disconnect();
@@ -109,10 +109,10 @@ async function getBarcodeAssortment(_recId) {
 
 async function getAssortmentBarcodeLine(_assortmentBarcode) {
     try {
-        let con = new mssqlClient("MidaxSender");
+        let con = new mssqlClient("ColinsTR_ReadOnly");
         let pool = await con.connect();
         let result = await pool.request()
-            .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
+            .input('dataAreaId', sql.NVarChar, 'v01')
             .input('barcode', sql.NVarChar, _assortmentBarcode.barcode)
             .execute('ERDIS.GetAssortmentBarcodeLine')
         await con.disconnect();

@@ -2,7 +2,6 @@ const sql = require('mssql');
 
 var { ShippingReceipt } = require('./../server/models/ShippingReceipt');
 var { apiQueue } = require('./../server/models/apiQueue');
-
 var { ErrorLog } = require('./../server/models/ErrorLog');
 var mssqlClient = require('./mssqlClient');
 var moment = require('moment');
@@ -14,10 +13,10 @@ var {kafka} = require('./../kafka-client/kafkaClient');
 async function getDispatchHeader(_dispatchNum) {
     try {
         let documentNum;
-        let con = new mssqlClient("MidaxSender");
+        let con = new mssqlClient("ColinsTR_ReadOnly");
         let pool = await con.connect();
         let result = await pool.request()
-            .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
+            .input('dataAreaId', sql.NVarChar, 'cl1')
             .input('DispatchNum', sql.NVarChar, _dispatchNum)
             .execute('ERDIS.GetDispatchHeader')
         await con.disconnect();
@@ -57,10 +56,10 @@ async function getDispatchHeader(_dispatchNum) {
 
 async function getBoxHeader(_dispatchNum) {
     try {
-        let con = new mssqlClient("MidaxSender");
+        let con = new mssqlClient("ColinsTR_ReadOnly");
         let pool = await con.connect();
         let result = await pool.request()
-            .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
+            .input('dataAreaId', sql.NVarChar, 'cl1')
             .input('DispatchNum', sql.NVarChar, _dispatchNum)
             .execute('ERDIS.GetBoxHeader')
         await con.disconnect();
@@ -103,10 +102,10 @@ async function getBoxHeader(_dispatchNum) {
 
 async function getBoxDetails(_doc) {
     try {
-        let con = new mssqlClient("MidaxSender");
+        let con = new mssqlClient("ColinsTR_ReadOnly");
         let pool = await con.connect();
         let result = await pool.request()
-            .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
+            .input('dataAreaId', sql.NVarChar, 'cl1')
             .input('boxBarcode', sql.NVarChar, _doc.boxNo)
             .execute('ERDIS.GetBoxDetails')
         await con.disconnect();

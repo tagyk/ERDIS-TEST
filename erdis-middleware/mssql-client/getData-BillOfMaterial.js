@@ -46,10 +46,10 @@ var { kafka } = require('./../kafka-client/kafkaClient');
 async function getItemTable(_recId) {
     try {
 
-        let con = new mssqlClient("MidaxSender");
+        let con = new mssqlClient("ColinsTR_ReadOnly");
         let pool = await con.connect();
         let result = await pool.request()
-            .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
+            .input('dataAreaId', sql.NVarChar, 'v01')
             .input('InventTableRecId', sql.BigInt, _recId)
             .execute('ERDIS.GetItemTable')
         await con.disconnect();
@@ -85,10 +85,10 @@ async function getItemTable(_recId) {
 async function getBarcode(_bom) {
     try {
         let bom;
-        let con = new mssqlClient("MidaxSender");
+        let con = new mssqlClient("ColinsTR_ReadOnly");
         let pool = await con.connect();
         let result = await pool.request()
-            .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
+            .input('dataAreaId', sql.NVarChar, 'v01')
             .input('ItemId', sql.NVarChar, _bom.itemId)
             .input('InventDimId', sql.NVarChar, _bom.inventDimId)
             .execute('ERDIS.GetBarcode')
@@ -111,10 +111,10 @@ async function getBarcode(_bom) {
 async function getAssortmentBarcode(_bom) {
     try {
         let bom;
-        let con = new mssqlClient("MidaxSender");
+        let con = new mssqlClient("ColinsTR_ReadOnly");
         let pool = await con.connect();
         let result = await pool.request()
-            .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
+            .input('dataAreaId', sql.NVarChar, 'v01')
             .input('ItemId', sql.NVarChar, _bom.itemId)
             .input('color', sql.NVarChar, _bom.color)
             .input('season', sql.NVarChar, _bom.season)
@@ -139,10 +139,10 @@ async function getAssortmentBarcode(_bom) {
 };
 async function getAssortmentBarcodeLine(_assortmentBarcode) {
     try {
-        let con = new mssqlClient("MidaxSender");
+        let con = new mssqlClient("ColinsTR_ReadOnly");
         let pool = await con.connect();
         let result = await pool.request()
-            .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
+            .input('dataAreaId', sql.NVarChar, 'v01')
             .input('barcode', sql.NVarChar, _assortmentBarcode.sub.barcode)
             .execute('ERDIS.GetAssortmentBarcodeLine')
         await con.disconnect();

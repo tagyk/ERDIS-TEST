@@ -28,10 +28,10 @@ var { kafka } = require('./../kafka-client/kafkaClient');
 async function getProduct(_recId) {
     try {
 
-        let con = new mssqlClient("MidaxSender");
+        let con = new mssqlClient("ColinsTR_ReadOnly");
         let pool = await con.connect();
         let result = await pool.request()
-            .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
+            .input('dataAreaId', sql.NVarChar, 'v01')
             .input('InventTableRecId', sql.BigInt, _recId)
             .execute('ERDIS.GetItemTable')
         await con.disconnect();
