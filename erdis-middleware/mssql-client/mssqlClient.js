@@ -40,10 +40,10 @@ const config_MidaxSender = {
     }
 };
 const config_ColinsTR_ReadOnly = {
-    server: "ERKTRS192",
-    user: "ax",
-    password: "465666",
-    database: 'MidaxSender',
+    server: "SERVERTR145",
+    user: "erdis",
+    password: "erdis123",
+    database: 'AX2012R3CU10PROD',
     connectionString: "Driver={SQL Server Native Client 11.0};Server=#{server}\\sql;Database=#{database};Uid=#{user};Pwd=#{password};ApplicationIntent=READONLY;",
     PoolTimeout: 199999, //3.3 min
     connectionTimeout: 1800000,// 10 min

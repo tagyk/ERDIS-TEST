@@ -14,8 +14,8 @@ var { kafka } = require('./../kafka-client/kafkaClient');
         //  var message = await kafka.messageConsumer(kafka.createClient(), "ERDISQUEUE", 0, false);
 
 
-        await  getBarcode(5638493037);
-        await getBarcodeAssortment(5637218846);
+        getBarcode(5638493037);
+        getBarcodeAssortment(5637218846);
         // getItemTable('30705044');
         // getItemTable('30704757');
         // getItemTable('30704654');
@@ -75,7 +75,7 @@ async function getBarcodeAssortment(_recId) {
         let result = await pool.request()
             .input('AppCode_', sql.NVarChar, 'CL_TR_LIVE')
             .input('RecId', sql.BigInt, _recId)
-            .execute('ERDIS.GetBarcodeRecId')
+            .execute('ERDIS.GetAssortmentBarcodeRecId')
         await con.disconnect();
         for (var i = 0, len = result.recordset.length; i < len; i++) {
             let bom;
@@ -91,7 +91,7 @@ async function getBarcodeAssortment(_recId) {
             });
             getAssortmentBarcodeLine(bom).then(() => {
                 barcode.findOne({ barcode: bom.barcode }, function (err, b) {
-                    if (b.numberOfBarcodes == b.__v && sr.isReady == false) {
+                    if (b.numberOfBarcodes == b.__v && b.isReady == false) {
                         barcode.findOneAndUpdate({ barcode: bom.barcode }, { $set: { isReady: 'true' } }, { new: true }, function (err, result) {
                             if (err) ErrorLog.AddLogData(err, bom.barcode, "getData-Barcode getBarcodeAssortment().then()");
                         });
@@ -119,12 +119,12 @@ async function getAssortmentBarcodeLine(_assortmentBarcode) {
         for (var i = 0, len = result.recordset.length; i < len; i++) {
             var assortmentBarcodeLines = result.recordset[i];
             var assortmentBarcode = await barcode.findById(_assortmentBarcode._id);
-            await assormentBarcodeLines.push({ barcode: assortmentBarcodeLines.barcode, qty: assortmentBarcodeLines.qty });
+            await assortmentBarcode.assormentBarcodeLines.push({ barcode: assortmentBarcodeLines.barcode, qty: assortmentBarcodeLines.qty });
             await assortmentBarcode.save();
 
         }
     }
     catch (err) {
-        ErrorLog.AddLogData(err, _assortmentBarcode.subId, "getData-BillOfMaterial getAssortmentBarcodeLines()");
+        ErrorLog.AddLogData(err, _assortmentBarcode, "getData-BillOfMaterial getAssortmentBarcodeLines()");
     }
 };

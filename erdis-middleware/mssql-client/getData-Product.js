@@ -40,18 +40,18 @@ async function getProduct(_recId) {
             await new product({
                 itemId: products.itemId,
                 itemName: products.itemName,
-                color: products.color,
-                size: products.size,
-                style: products.style,
-                brand: products.brand,
+                inventDimId: products.inventDimId,
                 season: products.season,
+                color: products.color,
+                style: products.style,
+                size: products.size,
+                brand: products.brand,
                 businessGroup: products.businessGroup,
                 businessGroupDesc: products.businessGroupDesc,
                 divisionGroup: products.divisionGroup,
                 divisionGroupDesc: products.divisionGroupDesc,
                 retailGroup: products.retailGroup,
                 retailGroupDesc: products.retailGroupDesc,
-                inventDimId: products.inventDimId
             }).save();
         }
     }
