@@ -8,31 +8,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceFolder}/server/server.js"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Kafka Offset",
-            "program": "${workspaceFolder}/kafka/offset.js"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Kafka consume",
-            "program": "${workspaceFolder}/kafka/consumer.js"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Kafka consumerOffset",
-            "program": "${workspaceFolder}/kafka/consumerOffset.js"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Kafka Test",
-            "program": "${workspaceFolder}/mssql-client/deneme.js"
+            "program": "${workspaceFolder}/erdis-wms-ua\\mssql-client\\getData-CustVend.js"
         }
     ]
 }
