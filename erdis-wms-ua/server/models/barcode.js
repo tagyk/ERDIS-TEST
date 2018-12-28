@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const { conn } = require('./../db/mongoose-erdis-middleware');
+const { ErrorLog } = require('./ErrorLog');
+const { apiQueue } = require('./apiQueue');
 
 var assormentBarcodeLineSchema = new mongoose.Schema({
 
@@ -38,6 +40,18 @@ var barcodeSchema = new mongoose.Schema({
 });
 
 barcodeSchema.index({ barcode: 1}, { unique: true });
+
+
+// barcodeSchema.post('save', function (next) {
+//     new apiQueue({
+//         refObjectId: this._id,
+//         documentName: "Barcode",
+//         keyValue: this.barcode
+//     }).save();
+//     next();
+// });
+
+
 
 var barcode = conn.model('barcode', barcodeSchema);
 

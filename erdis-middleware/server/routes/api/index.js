@@ -1,9 +1,10 @@
 var router = require('express').Router();
 var user = require('./user');
-var shippingReceipt = require('./shippingReceipt');
+var barcode = require('./barcode');
 //router.use('/', user);
 
 router.use('/user', user.router);
+router.use('/barcode', barcode.router);
 
 
 // router.use(function (err, req, res, next) {

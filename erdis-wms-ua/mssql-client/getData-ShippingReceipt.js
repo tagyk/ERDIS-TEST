@@ -1,7 +1,7 @@
 const sql = require('mssql');
 
 var { ShippingReceipt } = require('./../server/models/ShippingReceipt');
-var { apiQueue } = require('./../server/models/apiQueue');
+var { ApiQueue } = require('./../server/models/ApiQueue');
 var { ErrorLog } = require('./../server/models/ErrorLog');
 var mssqlClient = require('./mssqlClient');
 var moment = require('moment');
@@ -83,7 +83,7 @@ async function getBoxHeader(_dispatchNum) {
                             ShippingReceipt.findOneAndUpdate({ documentNum: _dispatchNum }, { $set: { isReady: 'true' } }, { new: true }, function (err, result) {
                                 if (err) ErrorLog.AddLogData(err, sr.documentNum, "getEnt076 then");
                             });
-                            new apiQueue({
+                            new ApiQueue({
                                 documentName: "ShippingReceipt",
                                 keyValue: _dispatchNum,
                                 isSent : false

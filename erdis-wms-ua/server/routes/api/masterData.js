@@ -1,4 +1,4 @@
-var {User} = require('../../models/user');
+var { User } = require('../../models/user');
 var { Barcode } = require('../../models/barcode');
 var { ErrorLog } = require('../../models/ErrorLog');
 var { ApiQueue } = require('../../models/apiQueue');
@@ -18,16 +18,34 @@ var { authenticate } = require('../authenticate');
 router.get('/barcodes', authenticate, (req, res) => {
 
     var dataValues;
+    request({
+        url: `http://www.mapquestapi.com/geocoding/v1/address?key=${key}&location=${encodedAddress}`,
+        json: true
+    }, (error, response, body) => {
+        //console.log(body.info.statuscode);
+        if (error) {
+            callback("Unable to connect to API servers.");
+        }
+        else if (body.info.statuscode === 400) {
+            callback("Unable to find that address.");
+        }
+        else if (body.info.statuscode === 0) {
+            callback(undefined, {
+                mapUrl: body.results[0].locations[0].mapUrl
+            });
+        } //else if body.info.statuscode === 0
+    });
+
     apiQueue.find({ documentName: "Barcode", isSent: false }).then((result) => {
         dataValues = result.map(function (data) { return data.keyValue; });
         Barcode.find({ barcode: { $in: dataValues } })
-        .sort({ _id: -1 })
-        .select({ "_id": 0})
-        .then((result) => {
-            res.send({ result });
-        }, (e) => {
-            res.status(400).send(e);
-        });
+            .sort({ _id: -1 })
+            .select({ "_id": 0 })
+            .then((result) => {
+                res.send({ result });
+            }, (e) => {
+                res.status(400).send(e);
+            });
     }, (e) => {
         ErrorLog.AddLogData(e, "api", "GET /Barcode server.js");
     });
@@ -50,7 +68,7 @@ router.patch('barcodes/commit/:barcode', authenticate, (req, res) => {
     }).catch((e) => {
         ErrorLog.AddLogData(err, "api", "patch /barcode commit User.findByToken");
     });
-    
+
 });
 
 
@@ -60,13 +78,13 @@ router.get('/products', authenticate, (req, res) => {
     apiQueue.find({ documentName: "Product", isSent: false }).then((result) => {
         dataValues = result.map(function (data) { return data.keyValue; });
         Product.find({ barcode: { $in: dataValues } })
-        .sort({ _id: -1 })
-        .select({ "_id": 0})
-        .then((result) => {
-            res.send({ result });
-        }, (e) => {
-            res.status(400).send(e);
-        });
+            .sort({ _id: -1 })
+            .select({ "_id": 0 })
+            .then((result) => {
+                res.send({ result });
+            }, (e) => {
+                res.status(400).send(e);
+            });
     }, (e) => {
         ErrorLog.AddLogData(e, "api", "GET /Barcode server.js");
     });
@@ -89,7 +107,7 @@ router.patch('barcodes/commit/:barcode', authenticate, (req, res) => {
     }).catch((e) => {
         ErrorLog.AddLogData(err, "api", "patch /barcode commit User.findByToken");
     });
-    
+
 });
 
-module.exports = {router};
+module.exports = { router };
