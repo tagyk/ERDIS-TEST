@@ -1,9 +1,6 @@
 const mongoose = require('mongoose');
-const {conn} = require('../db/mongoose-erdis-cargo-ekol');
 const validator = require('validator');
 const _ = require('lodash');
-var moment = require('moment');
-
 var ErrorLogSchema = new mongoose.Schema({
 
     errorName: {
@@ -31,7 +28,7 @@ var ErrorLogSchema = new mongoose.Schema({
 });
 ErrorLogSchema.pre('save', function (next) {
     var errorLog = this;
-    errorLog.createdAt = moment(Date.now()).format('DD-MM-YYYY');
+    errorLog.createdAt = Date.now()
     next();
 });
 
@@ -53,7 +50,7 @@ ErrorLogSchema.statics.AddLogData = function (_error, _keyValue, _event) {
 };
 
 
-var ErrorLog = conn.model('ErrorLog', ErrorLogSchema);
+var ErrorLog = mongoose.model('ErrorLog', ErrorLogSchema);
 
 
 module.exports = { ErrorLog }
