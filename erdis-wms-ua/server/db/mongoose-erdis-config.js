@@ -6,7 +6,7 @@ var mongoose = require('mongoose');
 mongoose.set('useFindAndModify', false);
 
 
-mongoose.Promise = global.Promise;
+//mongoose.Promise = global.Promise;
 var conn = mongoose.createConnection('mongodb://localhost:27017/ErdisConfig', {
     useCreateIndex: true,
     useNewUrlParser: true

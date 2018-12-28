@@ -1,9 +1,13 @@
 var router = require('express').Router();
 var user = require('./user');
 var shippingReceipt = require('./shippingReceipt');
+var masterData = require('./masterData');
+
 //router.use('/', user);
 router.use('/shippingReceipt',shippingReceipt.router);
-router.use('/', user.router);
+
+router.use('/user', user.router);
+router.use('/masterData', masterData.router);
 
 
 // router.use(function (err, req, res, next) {

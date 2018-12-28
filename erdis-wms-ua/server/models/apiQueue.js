@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const {conn} = require('../db/mongoose-erdis-wms-ua');
+var ObjectId = mongoose.Schema.Types.ObjectId;
 
 var apiQueueSchema = new mongoose.Schema({
 
@@ -21,6 +22,9 @@ var apiQueueSchema = new mongoose.Schema({
     sentBy: {
         type: String
     },
+    refObjectId: {
+        type: ObjectId
+    }
 
 });
 apiQueueSchema.pre('save', function (next) {
@@ -28,6 +32,7 @@ apiQueueSchema.pre('save', function (next) {
     apiQueue.createdAt = Date.now(); // moment(Date.now()).format('DD-MM-YYYY');
     next();
 });
+apiQueueSchema.index({documentName: 1, keyValue: 1}, {unique: true});
 
 var apiQueue = conn.model('apiQueue', apiQueueSchema);
 
